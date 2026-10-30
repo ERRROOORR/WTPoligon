@@ -15,3 +15,31 @@ A local text BLK can start with `include "#/develop/gameBase/gameData/.../origin
 Check the exact source tree before writing: missing targets and type mismatches are logged and skipped. Adding a plain duplicate may leave the first value in use. Game updates can change duplicate indexes. Generate one parameter per line, preserve types, resolve each edit against the installed stock tree, and verify the resulting value before installing it.
 
 Mission, vehicle, and tested weapon copies are re-read when a mission loads; changing them does not require a game restart. Newly created preset copies also load in the running game, while re-editing an already used preset was inferred from logs rather than isolated gameplay testing. Localization CSV is different: it is read at game startup.
+
+## Minimal invented examples
+
+These fragments use fictitious vehicle and field names to show syntax; they are not extracted game data or ready to install. A real edit must use an existing field and its actual stock type.
+
+```blk
+include "#/develop/gameBase/gameData/units/tankModels/example_vehicle.blk"
+"@override:VehiclePhys"{
+  "@override:Mass"{
+    "@override:Empty":r=42000
+  }
+}
+```
+
+For a repeated value, use its one based ordinal in the same parent block:
+
+```blk
+include "#/develop/gameBase/gameData/units/tankModels/example_vehicle.blk"
+"@override:VehiclePhys"{
+  "@override:mechanics"{
+    "@override:gearRatios"{
+      "@override:ratio[2]":r=0.75
+    }
+  }
+}
+```
+
+`@override` targets the first match without an ordinal. `@delete`, `@delete-all`, `@clone-last`, `@override-last`, and `@delete-last` are known parser directives but were not each isolated in game. `@override:name[0]` is invalid; `[1]` selects the first occurrence. A missing target or different type logs an error and skips that edit. Validate the resolved stock tree, all ordinal paths and types, and every intended final value before installing a copy.

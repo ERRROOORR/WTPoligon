@@ -18,8 +18,8 @@ WT Poligon — конструктор одиночных пользовател�
 
 ## Документация
 
-- [Датамайн: VROMFS](docs/ru/datamine/vromfs.md), [BLK](docs/ru/datamine/blk.md), [правки](docs/ru/datamine/override.md), [логи](docs/ru/datamine/game-logs.md)
-- [Миссии](docs/ru/datamine/user-missions.md), [авиация](docs/ru/datamine/aircraft.md), [оружие и боеприпасы](docs/ru/datamine/weapons-ammo.md), [сенсоры](docs/ru/datamine/sensors.md), [наземная техника и флот](docs/ru/datamine/ground-naval.md), [локализация](docs/ru/datamine/localization.md)
+  - [Оглавление датамайна](docs/ru/datamine/index.md): [VROMFS](docs/ru/datamine/vromfs.md), [BLK](docs/ru/datamine/blk.md), [правки](docs/ru/datamine/override.md), [логи](docs/ru/datamine/game-logs.md), [кэш](docs/ru/datamine/caching.md), [инструменты](docs/ru/datamine/tools.md), [CDK](docs/ru/datamine/cdk.md)
+  - [Миссии](docs/ru/datamine/user-missions.md), [авиация](docs/ru/datamine/aircraft.md), [пилоны](docs/ru/datamine/pylons.md), [оружие и боеприпасы](docs/ru/datamine/weapons-ammo.md), [сенсоры](docs/ru/datamine/sensors.md), [наземная техника и флот](docs/ru/datamine/ground-naval.md), [броня и экипаж](docs/ru/datamine/armor-crew.md), [модификации](docs/ru/datamine/modifications.md), [локализация](docs/ru/datamine/localization.md), [неудачные подходы](docs/ru/datamine/failures.md)
 - [Как устроена программа](docs/ru/program/overview.md), [план развития](docs/ru/program/roadmap.md), [как помочь](CONTRIBUTING.ru.md)
 
 ## Лицензия и уведомление
