@@ -18,8 +18,8 @@ The catalog is derived from the installed game. We label each technical claim **
 
 ## Documentation
 
-- [Datamining: VROMFS](docs/en/datamine/vromfs.md), [BLK](docs/en/datamine/blk.md), [overrides](docs/en/datamine/override.md), [logs](docs/en/datamine/game-logs.md)
-- [Missions](docs/en/datamine/user-missions.md), [aircraft](docs/en/datamine/aircraft.md), [weapons and ammunition](docs/en/datamine/weapons-ammo.md), [sensors](docs/en/datamine/sensors.md), [ground and naval vehicles](docs/en/datamine/ground-naval.md), [localization](docs/en/datamine/localization.md)
+- [Datamining index](docs/en/datamine/index.md): [VROMFS](docs/en/datamine/vromfs.md), [BLK](docs/en/datamine/blk.md), [overrides](docs/en/datamine/override.md), [logs](docs/en/datamine/game-logs.md), [caching](docs/en/datamine/caching.md), [tools](docs/en/datamine/tools.md), [CDK](docs/en/datamine/cdk.md)
+- [Missions](docs/en/datamine/user-missions.md), [aircraft](docs/en/datamine/aircraft.md), [pylons](docs/en/datamine/pylons.md), [weapons and ammunition](docs/en/datamine/weapons-ammo.md), [sensors](docs/en/datamine/sensors.md), [ground and naval vehicles](docs/en/datamine/ground-naval.md), [armor and crew](docs/en/datamine/armor-crew.md), [modifications](docs/en/datamine/modifications.md), [localization](docs/en/datamine/localization.md), [failures](docs/en/datamine/failures.md)
 - [Program overview](docs/en/program/overview.md), [roadmap](docs/en/program/roadmap.md), [contributing](CONTRIBUTING.md)
 
 ## License and notice

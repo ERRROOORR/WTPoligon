@@ -15,3 +15,17 @@ Mission-local `usr_<mission>.csv` files can name a mission and custom units or w
 | Weapon `bullet/bulletName` → CSV key | Copied shell name | text | Verified in game |
 
 Localization CSV is read at game startup: restart after adding or changing names. Mission and edited BLK files have a different reload schedule. A missing key may appear as an internal name. The tested mission title and vehicle card were localized; the exact vehicle card key among several simultaneously added candidates remains unknown.
+
+## Key construction and limits
+
+| Path or key | Where | Meaning / type | Status | Observation |
+|---|---|---|---|---|
+| `missions/<mission>` | User mission CSV | Mission title, UTF-8 text | Verified in game | Localized after restarting the client. |
+| `<vehicle>_1` | User mission CSV | Vehicle name in battle log and player list | Verified in game | A tested copied tank used this name; a copied aircraft without this key kept its internal ID. |
+| `<vehicle>_shop`, `_0`, `_2`, `/date` | User mission CSV | Shop/card/class/date variants | Unverified (in files only) | A card was localized with several candidate keys present; their individual contribution was not isolated. |
+| `weapons/<weapon>/short` | User mission CSV | Short copied missile name | Verified in game | Appeared on the loadout HUD and in the battle log after restart. |
+| `bullet/bulletName` | Copied weapon BLK | Lookup key for copied shell text | Verified in game | A changed key with CSV entry named a tested shell in the battle log. |
+| `locName`, `locDesc` | `mission_settings/mission` | Mission title/description or localization key | Unverified (in files only) | Literal mission text is supported; exact key lookup behavior was not isolated. |
+| `uniqueName` | Mission unit props | Bot/crew name key | Unverified (in files only) | Stock examples suggest bot naming, not a replacement for vehicle identity. |
+
+CSV uses semicolons and a header with language columns. A minimal new file can contain English and Russian columns; escape CSV quotes correctly. Keep mission stem, `mission_settings/mission/name`, and `usr_<mission>.csv` aligned. The mission CSV avoids replacing the global `lang` directory. A missing key may display as its identifier; ensure every named copy receives its `_1` entry.
