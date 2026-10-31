@@ -1,24 +1,16 @@
 > Русская версия: [../../ru/program/roadmap.md](../../ru/program/roadmap.md)
 
-# Roadmap
+# Roadmap after Beta-1.0
 
-The application is in development; these are goals, not release promises.
+Beta-1.0 already has the six-step Russian interface, an installed-game catalog, mission generation, editors for loadout, characteristics and ammunition, scenario controls, pre-write validation, logs and manifest-based rollback. The items below are plans or research, without release dates.
 
-| Area | Current state | Next work |
-|---|---|---|
-| Installed-game catalog and mission generation | Implemented in development build | Improve compatibility after game updates |
-| Aircraft loadout builder | Implemented; core flow tested in game | Verify mirroring, older presets, helicopters, and more weapon families |
-| General characteristics editor | In development | Edit verified fields and expose other BLK fields with clear status labels |
-| Ammunition and sensor editing | Mechanisms researched in game | Add user-facing controls and per-family validation |
-| Projects and sharing | Planned | Saved projects, reusable presets, import and export |
-| Guidance and release | Planned | Help, packaged build, and separate code license |
+| Area | Planned work |
+|---|---|
+| Usability | English interface localization and a first-run tutorial. |
+| Vehicles | Investigate using Dev-server vehicles in the regular client; verify each working path in game. |
+| Distribution | Build and test a standalone `.exe`; the current beta is a ZIP with bundled Python and `run.bat`. |
+| Weapons | Investigate a nuclear projectile and ground-vehicle guns mounted on aircraft. Check firing, effects and stability in game before claiming support. |
+| Units | Research drones and called-in vehicles in user missions. |
+| Writes | Add a history of applications and the ability to undo a selected past application. The current screen lists installs and can roll back the current, selected or all installs, but has no full undo history. |
 
-Each new field or compatibility claim should be traced to installed game data, checked for valid BLK output, and tested in game. Proposed drone and called-in vehicle customization, nuclear yield editing, and untested missile families remain research topics.
-
-## Next stages
-
-1. Complete the **Characteristics** step for engines, mass, transmissions, ship speed, armor, radar, warning receivers, countermeasures and names, according to vehicle type. Pair convenient controls with individual typed fields and show evidence status and bounds.
-2. Extend ammunition and weapon editing, including shells, missiles, bombs, torpedoes and their links through vehicle or preset copies. Validate each family in game before describing it as supported.
-3. Expand scenarios with more target and spawn choices, then add saved projects, reusable loadouts, import/export, undo history and guidance for first use.
-4. Investigate radar guided and naval missiles on pylons, additional aircraft guns, drones and called-in support vehicles. These remain research items until tested in game.
-5. Publish source, user and developer documentation, then package a release when the feature set and rollback flow are ready.
+Each proposed capability needs a traceable game-data source, valid generated files and an in-game test. Until then, label it **not verified** or **📄**. See the [tester checklist](../../TESTING.md).
