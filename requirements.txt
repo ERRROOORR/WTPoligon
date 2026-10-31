@@ -1,0 +1,6 @@
+# WT Poligon 5 — зависимости (.venv, Python 3.12): .venv\Scripts\python -m pip install -r requirements.txt
+zstandard>=0.22        # распаковка *.vromfs.bin (wtpoligon/game)
+PySide6>=6.7,<7        # окно программы (этап 2, wtpoligon/gui)
+rapidfuzz>=3.0         # поиск техники с опечатками (wtpoligon/game/search.py)
+pillow>=11.3           # картинки игры .avif и .ddsx (wtpoligon/game/images.py)
+pyooz==0.0.8           # распаковка Oodle (картинки техники .ddsx); GPL — в будущий exe не вкладывать как есть
