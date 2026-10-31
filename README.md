@@ -4,7 +4,39 @@
 
 WT Poligon is a builder for War Thunder single player custom test-drive missions. It aims to let you choose any vehicle, assemble an aircraft loadout, mount weapons on pylons, and change characteristics through local BLK copies using `include` and `@override`. Original game archives remain untouched; managed files are tracked for rollback. An unavailable or unowned vehicle may run as a custom copy with reduced interface or equipment behavior.
 
-**Status: in development, no release yet.** There is no executable to install. Running from source: coming soon, when the program code is published.
+**Status: closed beta (Beta-1.0).** Download and install instructions are below, in English and Russian.
+
+## Download and install (Beta-1.0)
+
+**[⬇ Download WT Poligon Beta-1.0](https://github.com/ERRROOORR/WTPoligon/releases/download/v1.0-beta/WTPoligon-Beta-1.0-public.zip)** (83 MB, Windows) · [all releases](https://github.com/ERRROOORR/WTPoligon/releases)
+
+1. Download `WTPoligon-Beta-1.0-public.zip` and extract it to any folder (do not run it from inside the archive).
+2. Open the extracted folder and double-click **`run.bat`**. Python is bundled — nothing else to install.
+   If Windows warns about the file, choose “More info” → “Run anyway”.
+3. The program finds War Thunder by itself (`%LOCALAPPDATA%\WarThunder` or Steam); otherwise point it to the game
+   folder (the one with `aces.vromfs.bin`). The first start takes up to a minute while it reads the game files.
+4. Pick a vehicle → go through the steps → “Проверка и запись” (Review and write) → “Записать в игру” (Write to game).
+5. In the game: **Single missions → Custom → “WTP5 — <vehicle>”**. No game restart needed.
+
+Remove everything the program wrote: “Проверка и запись” → “Откатить всё”. Remove the program: delete its folder.
+Something broken? “Проверка и запись” → **“Логи”** (bottom right) and send the archive from the `logs` folder.
+The interface is in Russian for now. Vehicle pictures in the list are not shown in this public build.
+
+### Скачать и установить — по-русски
+
+**[⬇ Скачать WT Poligon Beta-1.0](https://github.com/ERRROOORR/WTPoligon/releases/download/v1.0-beta/WTPoligon-Beta-1.0-public.zip)** (83 МБ, Windows) · [все версии](https://github.com/ERRROOORR/WTPoligon/releases)
+
+1. Скачайте `WTPoligon-Beta-1.0-public.zip` и распакуйте в любую папку (не запускайте прямо из архива).
+2. Откройте распакованную папку и дважды щёлкните **`run.bat`**. Python внутри — ничего ставить не нужно.
+   Если Windows предупредит о файле — «Подробнее» → «Выполнить в любом случае».
+3. Программа сама найдёт War Thunder (`%LOCALAPPDATA%\WarThunder` или Steam); если нет — укажите папку игры
+   (где лежит `aces.vromfs.bin`). Первый запуск — до минуты: программа читает файлы игры.
+4. Выберите технику → пройдите шаги → «Проверка и запись» → **«Записать в игру»**.
+5. В игре: **Одиночные миссии → Пользовательские → «WTP5 — <машина>»**. Перезапуск игры не нужен.
+
+Удалить всё, что записала программа: «Проверка и запись» → «Откатить всё». Удалить программу — удалить её папку.
+Что-то не работает — «Проверка и запись» → **«Логи»** (справа внизу) и пришлите архив из папки `logs`.
+В этой публичной сборке нет картинок техники в списке.
 
 | Capability | Status |
 |---|---|
