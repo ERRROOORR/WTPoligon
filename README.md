@@ -108,7 +108,10 @@ WT Poligon — неофициальный проект. War Thunder — това
 ## Documentation / Документация
 
 - **Program / Программа:** [overview](docs/en/program/overview.md) · [roadmap](docs/en/program/roadmap.md) ·
-  [обзор](docs/ru/program/overview.md) · [план](docs/ru/program/roadmap.md) · [testing / тестирование](docs/TESTING.md)
+  [user guide](docs/en/program/user-guide.md) · [developer guide](docs/en/program/developer-guide.md) ·
+  [обзор](docs/ru/program/overview.md) · [план](docs/ru/program/roadmap.md) ·
+  [руководство пользователя](docs/ru/program/user-guide.md) · [руководство разработчика](docs/ru/program/developer-guide.md) ·
+  [testing / тестирование](docs/TESTING.md)
 - **Datamine / Датамайн:** [index (EN)](docs/en/datamine/index.md) · [оглавление (RU)](docs/ru/datamine/index.md) —
   VROMFS, BLK, `@override`, game logs, missions, aircraft, pylons, weapons, sensors, ground and naval vehicles…
 - **Contributing / Как помочь:** [CONTRIBUTING.md](CONTRIBUTING.md) · [CONTRIBUTING.ru.md](CONTRIBUTING.ru.md)
