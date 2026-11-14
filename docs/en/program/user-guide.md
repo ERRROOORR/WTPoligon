@@ -1,48 +1,127 @@
 > Русская версия: [../../ru/program/user-guide.md](../../ru/program/user-guide.md)
 
-# User guide (Beta-1.0)
+# User guide (2.0-beta)
 
-The current window is in Russian. This guide names its controls in Russian alongside English step names.
+The window is in Russian. This guide gives Russian control names next to English step names.
 
 ## Start
 
-On Windows, extract the beta ZIP and run `run.bat`, or run `python -m wtpoligon` from source. The program finds an installed War Thunder or asks for its folder, which contains `aces.vromfs.bin`. Building the first catalog can take up to a minute. Choose a vehicle, use **Далее →** (Next) or the step buttons, and finish with **Записать в игру** (Write to game).
+1. On Windows, extract the beta ZIP and run `run.bat`; from source, run `python -m wtpoligon`.
+2. The program finds the installed War Thunder or asks for its folder (the one with `aces.vromfs.bin`). The first
+   catalog build takes up to a minute.
+3. Choose a vehicle, move with **Далее →** (Next) or the step buttons at the top, finish with **Записать в игру**
+   (Write to game).
 
-**«Проверено в игре»** (verified in game) marks behavior with an in-game test. **«Не проверено»** (not verified) and **📄** mean that the option is derived from game files but its gameplay behavior still needs testing. A successful pre-write check only validates generated files. See the [tester checklist](../../TESTING.md).
+Marks in the window:
+
+- **«Проверено в игре»** (verified in game) — behavior tested in the game.
+- **«Не проверено»** (not verified) and **📄** — the option follows from game files; its gameplay effect still needs
+  testing.
+- A passing pre-write check validates generated files, not the whole combination in battle.
+
+See the [tester checklist](../../TESTING.md).
 
 ## 1. Vehicle / «Техника»
 
-Search by Russian or English name or internal ID; search tolerates typos and keyboard-layout mistakes. Filter by vehicle type, nation and rank. Pick an aircraft, helicopter, ground vehicle or ship. Mark **«Есть в моём ангаре»** only if you own it. An owned vehicle can launch under its real identity with its normal interface; an unowned one launches as a copy and may lose some modifications or icons. You can filter to **«Только из моего ангара»** (only in my hangar). A false ownership mark can make the game exit the mission immediately.
+- Search by Russian or English name or internal ID; typos and wrong keyboard layout are tolerated.
+- Filters: type, nation, rank.
+- **«Есть в моём ангаре»** (in my hangar) — only for a vehicle you own. It launches under its real identity with the
+  normal interface. An unowned vehicle launches as a copy and may lose some modifications or icons.
+- A false ownership mark makes the game exit the mission immediately.
+- Filter **«Только из моего ангара»** (only in my hangar).
+- Saved vehicles (*My vehicles*) appear in the search together with game vehicles.
 
 ## 2. Loadout / «Подвеска»
 
-This step applies to aircraft and helicopters; it is skipped for tanks and ships. Start from a stock preset, then select a numbered pylon. **«Штатное для пилона»** lists its normal options; **«Любое оружие игры»** searches the wider weapon catalog. The extra checkbox includes tank, ship and SAM weapons; these unusual combinations are marked 📄 where untested. Set the number of attachment points, clear a pylon with **«Снять»**, or copy to a suggested partner with **«Зеркально»**; check the partner number. Save and load your own named presets from **«Мои пресеты»**. The summary shows total mass, limits, balance and counts. **«Невесомая подвеска»** compensates payload mass. A custom loadout uses a vehicle copy even when you own the original; a stock preset can keep the real vehicle.
+Aircraft and helicopters only; skipped for tanks and ships.
+
+- Start from a stock preset and select a pylon by number.
+- **«Штатное для пилона»** — the pylon's stock options; **«Любое оружие игры»** — the full weapon catalog with
+  search. A separate checkbox adds tank, ship and SAM weapons; untested combinations are marked 📄.
+- Number of attachment points; **«Снять»** clears a pylon; **«Зеркально»** copies to the paired pylon (check the
+  pair number).
+- Pylons without available weapons can't be selected. Missile containers (×2, ×4) on another aircraft's pylon carry
+  all their missiles.
+- **«Мои пресеты»** — save and load your own presets.
+- The summary shows mass, limits, balance and counts. **«Невесомая подвеска»** (weightless loadout) compensates
+  payload mass.
+- Bomb plane (Mistel): when a pylon holds a weapon that releases a bomb plane, the **«Самолёт под подвеской»**
+  (aircraft below) block appears — any aircraft of the game, **«Взрывчатка, кг»** (explosive, kg) or **«Ядерная»**
+  (nuclear). A bomb plane goes on one pylon only. A nuclear warhead deals nuclear damage; the blast looks ordinary.
+- A custom loadout uses a vehicle copy even when you own the original; a stock preset can keep the real vehicle.
 
 ## 3. Characteristics / «Характеристики»
 
-Pick a section and edit its overall value or individual parameters. The overall value changes linked fields proportionally; changing a field updates the overall figure. Available sections depend on the vehicle and can include engines, mass, radar, warning receivers, countermeasures and names. Rows show the stock value, BLK path, unit and evidence status; **«Все параметры (дерево)»** offers a searchable field tree. **«Сброс»** resets a section. Red invalid values block writing; amber values are outside the observed stock range. Changing names in the mission CSV may require restarting the game before they appear.
+- Pick a section; edit the overall value or individual fields. The overall value scales linked fields; editing a
+  field updates the overall value.
+- Sections depend on the vehicle: engines, mass, radar, RWR, countermeasures, reload, names.
+- Radar: coverage in all modes, close combat included; detection range changes the target display area, the scale
+  and the transmitters.
+- **«Перезарядка»** (reload) — reload time in seconds, down to instant.
+- Each row shows the stock value, BLK path, unit and evidence status. **«Все параметры (дерево)»** — searchable
+  field tree. **«Сброс»** resets the section.
+- Red values are invalid and block writing; amber values are outside the stock range.
+- A new CSV name appears only after a game restart.
 
 ## 4. Ammunition / «Боеприпасы»
 
-For ground and naval vehicles, choose a gun and fill up to four mission ammunition slots with a shell and count. Watch **«Заряжено»** against capacity. **«Выбрать орудие…»** searches gun file names; **«+»** searches a shell, gun or carrier and adds a shell from the installed game. Select a shell to inspect and edit its fields; **«Все параметры · дерево»** exposes the typed field tree. Aircraft and helicopters instead show gun belts and rounds per barrel. **«Сбросить боекомплект»** restores the stock slot choices. The ammunition workflow is a priority 📄 area in the [tester checklist](../../TESTING.md); verify the result in battle.
+- Ground and naval vehicles: choose a gun and fill up to four slots with a shell and a count. Watch **«Заряжено»**
+  (loaded) against capacity.
+- **«Выбрать орудие…»** searches gun file names; **«+»** searches a shell, gun or vehicle and adds a shell from the
+  game.
+- A selected shell can be edited; **«Все параметры · дерево»** shows all typed fields.
+- **«Ядерный заряд»** (nuclear charge) — for bombs, missiles and shells.
+- All edits to one gun are written to a single copy.
+- Aircraft and helicopters: belts and rounds per barrel; they have no ground-gun block.
+- **«Сбросить боекомплект»** restores the stock slots.
+- Ammunition is a priority 📄 area in the [tester checklist](../../TESTING.md); verify the result in battle.
 
-## 5. Scenario / «Сценарий»
+## 5. Called-in vehicles / «Вызываемая техника»
 
-The selected vehicle sets the available mode: ground, aircraft, helicopter or naval; aircraft and helicopters can also choose a duel. Set the player BR for automatic target selection. **«Подобрать по БР»** fills target categories; adjust category counts, distances and whether targets shoot or use radar. Add or remove a specific target, or **«Перебрать категорию»** to reroll it. Choose map where offered, time, weather and game mode. Aircraft controls include start altitude and speed; helicopters can start on the ground. A duel lets you choose the opponent, its loadout, count, starting distance, altitude and whether it shoots. Rules include markers, restoring targets and ammo, infinite fuel, fast reload and mode-specific options. Read each **«проверено в игре» / «не проверено»** badge; many scenario combinations still need gameplay testing.
+- The list shows the vehicle's stock called-in units.
+- An aircraft can be set as the vehicle's drone; tanks and SAM launchers as escort. Ground units have a count.
+- **«Заменить»** (replace) and **«Убрать»** (remove) act on a list row.
+- **«+ Добавить технику»** (add) searches game vehicles and your saved vehicles (called in with their loadout).
+- The step is marked 📄: check the call-in in game.
 
-## 6. Review and write / «Проверка и запись»
+## 6. Scenario / «Сценарий»
 
-Inspect launch mode, edits, scenario, warnings and the exact file list. Errors disable **«Записать в игру»**. If writing is available, confirm the target game folder and write. The mission appears at **Single missions → Custom → “WTP5 — <vehicle>”** without a restart. The lower table lists the program's recorded installs and file states. **«Откатить эту машину»**, **«Откатить выбранное»** and **«Откатить всё»** roll back the current, selected or all recorded installs. Rollback removes only program-owned files whose hash still matches and restores originals it backed up; files changed afterward are left in place. Review the rollback report.
+- The vehicle sets the mode: ground, aircraft, helicopter or naval; aircraft also have a duel.
+- Player BR drives automatic picks. **«Подобрать по БР»** fills target categories; then set counts, distances,
+  whether targets shoot, bot radar.
+- Add or remove a specific target; **«Перебрать категорию»** rerolls a category.
+- Map (where offered), time, weather, game mode.
+- Aircraft: start altitude and speed; helicopters can start on the ground.
+- Duel: opponent, its loadout, count, distance, altitude, whether it shoots.
+- Rules: markers, target restore, infinite fuel, mode options.
+- **«Пополнять боезапас»** (restore ammunition) — as "Limited ammunition: No" in the game's test drive: ammunition
+  is restored after everything is fired.
+- On narrow maps the program writes a level copy with wide borders, without "Return to the battlefield" (📄 not
+  verified in game).
+- Many combinations are untested — read the **«проверено в игре» / «не проверено»** marks.
 
-**«Логи»** collects recent game logs and the program's records into a ZIP in the `logs` folder next to the program and opens that folder. Send the ZIP with the vehicle, steps taken and what happened when reporting a problem.
+## 7. Review and write / «Проверка и запись»
+
+- Shows the launch mode, edits, scenario, warnings and the exact file list.
+- Errors disable **«Записать в игру»**. If writing is available, confirm the game folder and write.
+- The mission appears at **Single missions → Custom → "WTP5 — <vehicle>"** without a restart.
+- **«Сохранить как свою технику»** / **«Открыть свою технику»** — *My vehicles*. A saved vehicle can be opened,
+  renamed and deleted.
+- The lower table lists the program's installs and file states. **«Откатить эту машину»**, **«Откатить выбранное»**,
+  **«Откатить всё»** roll back the current, selected or all installs.
+- Rollback removes only program files whose hash still matches and restores backed-up originals; files changed
+  afterward stay. Review the rollback report.
+- **«Логи»** (Logs) packs recent game logs, the program log (`%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`) and the
+  program's records into a ZIP in the `logs` folder next to the program and opens the folder. Send the ZIP with the
+  vehicle and the steps taken when reporting a problem.
 
 ## Common problems
 
 | Symptom | What to check |
 |---|---|
-| Game not found | Select the installed game folder containing `aces.vromfs.bin`. |
+| Game not found | Select the installed game folder with `aces.vromfs.bin`. |
 | Mission exits at once | Clear **«Есть в моём ангаре»** if the vehicle is not owned; write again. |
-| Custom loadout lacks an interface item or modification | It launches as a copy. Try a stock preset or an owned vehicle under its real identity. |
-| **Write to game** is disabled | Select a vehicle, wait for loading and read validation errors. A datamine source also needs an explicit target game folder. |
+| Custom loadout lacks an interface item or modification | It launches as a copy. Try a stock preset or an owned vehicle. |
+| **Write to game** is disabled | Select a vehicle, wait for loading, read the validation errors. A datamine source needs an explicit game folder. |
 | New name does not appear | Restart the game after a CSV name change. |
-| Mission or weapon fails in game | Note any 📄 status, roll back the install and collect **«Логи»**. |
+| Mission or weapon fails in game | Note any 📄 status, roll back the install, collect **«Логи»**. |

@@ -1,16 +1,22 @@
 > Русская версия: [../../ru/program/roadmap.md](../../ru/program/roadmap.md)
 
-# Roadmap after Beta-1.0
+# Roadmap after 2.0-beta
 
-Beta-1.0 already has the six-step Russian interface, an installed-game catalog, mission generation, editors for loadout, characteristics and ammunition, scenario controls, pre-write validation, logs and manifest-based rollback. The items below are plans or research, without release dates.
+2.0-beta has a seven-step Russian interface, a catalog from the installed game, mission generation, loadout,
+characteristics and ammunition editors, called-in vehicles, *My vehicles*, scenario controls, pre-write validation,
+a program log and manifest-based rollback. The items below are plans or research, without release dates.
 
 | Area | Planned work |
 |---|---|
-| Usability | English interface localization and a first-run tutorial. |
-| Vehicles | Investigate using Dev-server vehicles in the regular client; verify each working path in game. |
-| Distribution | Build and test a standalone `.exe`; the current beta is a ZIP with bundled Python and `run.bat`. |
-| Weapons | Investigate a nuclear projectile and ground-vehicle guns mounted on aircraft. Check firing, effects and stability in game before claiming support. |
-| Units | Research drones and called-in vehicles in user missions. |
-| Writes | Add a history of applications and the ability to undo a selected past application. The current screen lists installs and can roll back the current, selected or all installs, but has no full undo history. |
+| Usability | English interface localization; a first-run tutorial and FAQ. |
+| Vehicles | Dev-server vehicles in the regular client; each working path verified in game. |
+| Distribution | A standalone `.exe`; the current beta is a ZIP with bundled Python and `run.bat`. |
+| Weapons | Missile characteristics (range, speed, seeker, overload, warhead); ground-vehicle guns on aircraft; SAMs with radar seekers and naval SAMs on pylons. |
+| Sensors | Radar guidance channels; EW modules. |
+| Vehicle edits | Sight; turret and gun. |
+| Scenarios | Long-range duel up to 200 km, air-defense penetration, a mission for SAM vehicles, naval targets. |
+| Ammunition | Timer of the built-in ammunition restore; instant reload on the fire button. |
+| Writes | History of applications and undo of a selected past application. The current screen lists installs and rolls back the current, selected or all installs. |
 
-Each proposed capability needs a traceable game-data source, valid generated files and an in-game test. Until then, label it **not verified** or **📄**. See the [tester checklist](../../TESTING.md).
+Each capability needs a traceable game-data source, valid generated files and an in-game test. Until then it is
+labeled **not verified** or **📄**. See the [tester checklist](../../TESTING.md).
