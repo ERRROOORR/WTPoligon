@@ -1,5 +1,15 @@
 # Changelog / Журнал изменений
 
+## 1.47 — 2026-11-15
+- Radar: coverage in all modes incl. close combat and tracking (+ cue area); detection range = transmitters + displayed
+  distance + scale; passive receivers untouched. / РЛС: обзор во всех режимах вкл. НСЦ и сопровождение; дальность —
+  передатчики + зона отображения целей + шкала; пассивные приёмники не трогаются.
+- Restore ammunition = "Limited ammunition: No" (`isLimitedAmmo=no`). / «Пополнять боезапас» = «Ограниченный боезапас: Нет».
+- Missile containers keep all missiles on foreign pylons; empty slots not selectable; own loadout + gun copy;
+  aircraft have no guns/belts block in Ammunition. / Контейнеры с ракетами; пустые пилоны; своя подвеска + копия пушки;
+  у авиации нет блока «Пушки, ленты».
+- Only "not verified" marks in the window. / В окне только пометки «не проверено».
+
 ## 1.35 — 2026-11-14
 - New step *Called-in vehicles* (any aircraft as a drone, tanks / SAM launchers as escorts, own saved vehicles). /
   Новый шаг «Вызываемая техника» (любой самолёт как дрон, танки / ЗРК в сопровождение, своя техника).

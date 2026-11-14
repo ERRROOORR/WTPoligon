@@ -17,7 +17,7 @@ def copy_path(stock, unit_class):
     return '%s/%s__%s' % (folder, unit_class, name)
 
 
-def build_files(source, unit, kind, preset, ammo, unit_class, extra_edits=()):
+def build_files(source, unit, kind, preset, ammo, unit_class, extra_edits=(), custom_presets=None):
     """Возвращает (файлы, правка машины, ячейки миссии, ошибки)."""
     guns = gun_paths(unit, kind, source, preset)
     gun = ammo.gun or next((p for _, p, _ in guns if shells_in(source, p)), '')
@@ -78,16 +78,29 @@ def build_files(source, unit, kind, preset, ammo, unit_class, extra_edits=()):
     if kind in ('air', 'heli'):
         wp = unit.block('weapon_presets')
         entry = next(((i, p) for i, p in enumerate(wp.blocks, 1) if p.get('name') == preset), None) if wp else None
-        if not entry or not entry[1].get('blk'):
+        if (not entry or not entry[1].get('blk')) and custom_presets is not None:
+            # своя подвеска: пресет не штатный. Старая схема — оружие прямо в файле своего пресета: ссылку
+            # на копию пушки пишем туда; новая схема — пушка в WeaponSlots копии самолёта (ниже, nested_lines)
+            import re as _re
+            weapon_lines = ''
+            for path, text in custom_presets:
+                new = _re.sub(r'(blk:t=")([^"]+)(")', lambda m: m[1] + copied + m[3]
+                              if weapon_key(m[2]) == weapon_key(gun) else m[0], text)
+                if new != text:
+                    files.append((path, new))
+                    weapon_lines = 'x'
+            unit_patch = ''
+        elif not entry or not entry[1].get('blk'):
             return files, '', chosen, problems + ['нет пресета авиационного вооружения']
-        base = entry[1].get('blk')
-        preset_copy = copy_path(base, unit_class)
-        weapon_lines = ''.join('"@override:Weapon[%d]"{"@override:blk":t=%s}\n' % (int(i.split(':')[1]), B.quote(copied))
-                               for i, path, _ in guns if str(i).startswith('preset:') and weapon_key(path) == weapon_key(gun))
-        files.append(('content/pkg_local/' + preset_copy,
-                      'include "#/develop/gameBase/%s"\n%s' % (base, weapon_lines)))
-        unit_patch = '"@override:weapon_presets"{"@override:preset[%d]"{"@override:blk":t=%s}}\n' % (
-            entry[0], B.quote(preset_copy))
+        else:
+            base = entry[1].get('blk')
+            preset_copy = copy_path(base, unit_class)
+            weapon_lines = ''.join('"@override:Weapon[%d]"{"@override:blk":t=%s}\n' % (int(i.split(':')[1]), B.quote(copied))
+                                   for i, path, _ in guns if str(i).startswith('preset:') and weapon_key(path) == weapon_key(gun))
+            files.append(('content/pkg_local/' + preset_copy,
+                          'include "#/develop/gameBase/%s"\n%s' % (base, weapon_lines)))
+            unit_patch = '"@override:weapon_presets"{"@override:preset[%d]"{"@override:blk":t=%s}}\n' % (
+                entry[0], B.quote(preset_copy))
         nested_lines = ''.join(E.override_path(unit, i + '/blk', copied) for i, path, _ in guns
                                if str(i).startswith('WeaponSlots/') and weapon_key(path) == weapon_key(gun))
         for selection in ammo.air_guns:

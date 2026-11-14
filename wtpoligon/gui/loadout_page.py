@@ -847,6 +847,8 @@ class LoadoutPage(QWidget):
                                 self._weapon_icon(b), False, L.weapon_key(cur or '') == L.weapon_key(b)))
         else:
             cur = None
+            if self.pylons.scheme == 'slots' and not self.pylons.slot(key).variants:
+                return []                     # пилон без точек подвески: в игре на него ничего не вешается
             if self.pylons.scheme == 'slots':
                 cur = (self.lo.slots.get(key) or {}).get('weapon')
             else:
@@ -1054,6 +1056,8 @@ class LoadoutPage(QWidget):
                 self.lo.slots[key] = {'variant': value}
             else:
                 s = self.pylons.slot(key)
+                if not s.variants:            # у пилона нет точек подвески (F-15EX, пилон 9) — вешать некуда
+                    return False
                 old = self.lo.slots.get(key) or {}
                 sample = s.variant(old.get('sample') or old.get('variant')) or s.variants[0]
                 self.lo.slots[key] = {'weapon': value, 'sample': sample.name}

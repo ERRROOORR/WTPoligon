@@ -41,3 +41,10 @@ The archive survey examined 1,652 root aircraft definitions and 9,815 preset fil
 For an old style copy, retain a direct `Weapon` list including `trigger`, `blk`, `emitter`, `bullets`, its order, and `hideNodes`. An empty list can mean an unarmed external preset while fixed guns remain in the vehicle. For a slot based copy, define each new `WeaponPreset/name` in the copied aircraft and make the separate preset file refer to those exact names. A custom name placed only under `userVehicles/` failed because the stock preset catalog still supplied the lookup. A tested old preset could replace one bomb link while retaining the other three.
 
 Mirroring cannot use a universal slot number formula. Left/right names, `ShowNodes`, and `emitter` provide clues; on many older aircraft emitters are numbered without sides. Helicopter variants can contain a container plus several weapon records; their `trigger`, order and optional installation mass must be retained. The demonstrated helicopter custom slot combination worked under a new copy identity but showed an aircraft HUD.
+
+## Missile containers on foreign pylons
+
+| Claim | Evidence |
+|---|---|
+| A container weapon (`container:b=yes`, own `emitter`s, `bullets:i=2`) placed on a pylon whose sample entry has `bullets:i=1` carries **one** missile; without the `bullets` field it carries all of them. Do not copy the sample's `bullets` for containers. | Verified in game (F-15EX, AIM-120D ×2) |
+| A weapon slot without any `WeaponPreset` (F-15EX slot 9) has no attachment points — nothing can be hung there. | In files only |

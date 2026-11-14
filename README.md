@@ -12,7 +12,15 @@ The in-game test drive only lets you try a vehicle as it is. WT Poligon lets you
 - build a **scenario** — targets picked automatically by battle rating or by hand, duels, weather, time, rules;
 - **roll everything back** — game files are never modified, everything the program writes can be removed.
 
-**Status: closed beta (1.35).** What to test — [docs/TESTING.md](docs/TESTING.md).
+**Status: closed beta (1.47).** What to test — [docs/TESTING.md](docs/TESTING.md).
+
+## What's new in 1.47
+
+- **Radar** (verified in game): coverage works in every mode including close combat (up to 360°); detection range
+  changes the displayed range, the scale and the transmitters together.
+- **Restore ammunition** works like the game's test drive ("Limited ammunition: No") — rearm after everything is fired.
+- Missile containers (×2, ×4) on any pylon carry all their missiles; empty pylons can no longer be selected.
+- The window shows only "not verified" marks.
 
 ## What's new in 1.35 (since Beta-1.0)
 
@@ -62,7 +70,15 @@ The interface is in Russian for now; English is planned.
 - собрать **сценарий** — цели с автоподбором по БР или вручную, дуэли, погоду, время, правила;
 - **всё откатить** — файлы игры не меняются, всё, что записала программа, удаляется.
 
-**Состояние: закрытая бета (1.35).** Что проверять — [docs/TESTING.md](docs/TESTING.md).
+**Состояние: закрытая бета (1.47).** Что проверять — [docs/TESTING.md](docs/TESTING.md).
+
+## Что нового в 1.47
+
+- **РЛС** (проверено в игре): обзор во всех режимах, включая ближний бой (до 360°); дальность обнаружения меняет
+  и зону отображения целей, и шкалу, и передатчики.
+- **«Пополнять боезапас»** — как в тест-драйве игры («Ограниченный боезапас: Нет»): пополнение после того, как всё выпущено.
+- Контейнеры с ракетами (×2, ×4) на любом пилоне несут все ракеты; на пустые пилоны больше нельзя ничего выбрать.
+- В окне остались только пометки «не проверено».
 
 ## Что нового в 1.35 (после Beta-1.0)
 

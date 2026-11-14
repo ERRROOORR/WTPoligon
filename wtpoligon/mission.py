@@ -61,7 +61,7 @@ def mission_text(*, name, loc_name, loc_desc, kind, spawn, mtype, unit_class, we
                  modifications=(), extra_units=(), init_actions=(), extra_triggers=(), way_points=(), extra_areas=(),
                  player_turn=None, header='// WT Poligon 5: тестовая миссия (launch.md §6)\n',
                  level=None, player_pos=None, player_speed=None, environment='Day', weather='good',
-                 difficulty='', infinite_fuel=True, player_respawn=True, rapid_reload=0):
+                 difficulty='', infinite_fuel=True, player_respawn=True, rapid_reload=0, variables=(), limited_ammo=True):
     """Текст миссии. name — mission{name} (= имя файла без .blk); bullets — [(блок снаряда, количество)] до 4;
     modifications — модификации игрока; init_actions — действия в конце триггера init; extra_triggers — после
     стандартных; extra_units — после игрока (и аэродрома); player_turn — поворот игрока и зоны возрождения
@@ -156,12 +156,12 @@ def mission_text(*, name, loc_name, loc_desc, kind, spawn, mtype, unit_class, we
             B.Block('mission', [('name', 't', name),
                                 ('type', 't', mtype), ('level', 't', level), ('environment', 't', environment),
                                 ('weather', 't', weather), ('locName', 't', loc_name), ('locDesc', 't', loc_desc),
-                                ('isLimitedFuel', 'b', not infinite_fuel), ('isLimitedAmmo', 'b', True),
+                                ('isLimitedFuel', 'b', not infinite_fuel), ('isLimitedAmmo', 'b', limited_ammo),
                                 ('restoreType', 't', 'manual'), ('optionalTakeOff', 'b', False)]
                     + ([('difficulty', 't', difficulty)] if difficulty else []))]),
         B.Block('imports'), triggers,
         B.Block('mission_objectives', [('isCategory', 'b', True), ('is_enabled', 'b', True)]),
-        B.Block('variables'), B.Block('dialogs'), B.Block('airfields'), B.Block('effects'),
+        B.Block('variables', list(variables)), B.Block('dialogs'), B.Block('airfields'), B.Block('effects'),
         B.Block('units', blocks=[player] + units + list(extra_units)),
         B.Block('areas', blocks=[B.Block('player_spawn', [('type', 't', 'Sphere'), ('tm', 'm', _tm(pos, 10.0, player_turn)),
                                                           ('objLayer', 'i', 0)], [B.Block('props')])] + list(extra_areas)),

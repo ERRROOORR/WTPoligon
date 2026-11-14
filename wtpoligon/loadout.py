@@ -246,7 +246,7 @@ def fill_all(pylons, weapon_path, slots=None):
     """«Всё одним типом»: weapon_path на каждый пилон (образец — первый вариант слота)."""
     out = {}
     for s in pylons.pylon_slots:
-        if slots is None or s.index in slots:
+        if (slots is None or s.index in slots) and s.variants:   # пилон без точек — пропустить
             out[s.index] = {'weapon': weapon_path, 'sample': s.variants[0].name}
     return out
 
@@ -645,7 +645,9 @@ def slot_weapons(pylons, index, choice):
     if 'variant' in choice:
         v = s.variant(choice['variant'])
         return [(w.get('blk'), w) for w in v.weapons] if v else []
-    v = s.variant(choice.get('sample')) or s.variants[0]
+    v = s.variant(choice.get('sample')) or (s.variants[0] if s.variants else None)
+    if v is None:
+        return []
     return [(choice['weapon'], w) for w in v.weapons[:choice.get('count') or None]]
 
 
@@ -846,7 +848,10 @@ def _choice_warnings(source, pylons, s, choice, by_path, sm):
     if not weapon_exists(source, choice['weapon']):
         sm.warnings.append(('refuse', 'пилон %d: нет файла оружия %s' % (s.index, choice['weapon'])))
         return
-    sample = s.variant(choice.get('sample')) or s.variants[0]
+    sample = s.variant(choice.get('sample')) or (s.variants[0] if s.variants else None)
+    if sample is None:
+        sm.warnings.append(('refuse', 'пилон %d: на него ничего не вешается' % s.index))
+        return
     if not sample.weapons:
         sm.warnings.append(('refuse', 'пилон %d: у варианта-образца %s нет точек подвеса' % (s.index, sample.name)))
         return
@@ -954,7 +959,10 @@ def build_files(source, pylons, lo, unit_class, catalog=None):
             if 'variant' in choice:
                 pairs.append((index, choice['variant']))
                 continue
-            sample = s.variant(choice.get('sample')) or s.variants[0]
+            sample = s.variant(choice.get('sample')) or (s.variants[0] if s.variants else None)
+            if sample is None:
+                problems.append('пилон %d: на него ничего не вешается' % index)
+                continue
             new = variant_name(index, choice)
             entry = by_path.get(weapon_key(choice['weapon']))
             v = B._clone(sample.block)
@@ -966,6 +974,10 @@ def build_files(source, pylons, lo, unit_class, catalog=None):
                 v.blocks = [b for i, b in enumerate(v.blocks) if i not in drop]
             same_kind = (weapon_kind(source, choice['weapon'])
                          == weapon_kind(source, sample.weapons[0].get('blk')))
+            chosen_tree = source.load(choice['weapon'])
+            # контейнер (×2, ×4…) сам задаёт число ракет (bullets внутри); bullets образца (1) его урезает —
+            # в игре с bullets=1 контейнер ×2 нёс одну ракету, без поля — обе (F-15EX, 18 AIM-120D → 12)
+            container = bool(chosen_tree is not None and chosen_tree.get('container'))
             for w in v.blocks:
                 if w.name != 'Weapon':
                     continue
@@ -977,6 +989,8 @@ def build_files(source, pylons, lo, unit_class, catalog=None):
                         continue
                     elif k == 'trigger' and entry is not None and not same_kind:
                         x = entry['trigger']
+                    elif k == 'bullets' and container:
+                        continue
                     elif k == 'bullets' and entry is not None and not same_kind:
                         x = entry['bullets']
                     params.append((k, t, x))

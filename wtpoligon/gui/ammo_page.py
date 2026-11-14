@@ -196,6 +196,7 @@ class AmmoPage(QWidget):
         vehicle = self.win.vehicle
         if vehicle is None:
             return
+        self.load_card.setVisible(vehicle['kind'] not in ('air', 'heli'))   # у авиации этот блок не нужен
         load_title = QLabel('Пушки, ленты и боезапас' if vehicle['kind'] in ('air', 'heli') else 'Боекомплект')
         load_title.setStyleSheet('font-size: 12pt; font-weight: 700')
         self.load_lay.addWidget(load_title)
@@ -213,10 +214,7 @@ class AmmoPage(QWidget):
             self.gun_combo.addItem(C.display_name(self.names, path, True), path)
             self.gun_combo.setItemData(self.gun_combo.count() - 1, path, Qt.ToolTipRole)
         gun_name = C.display_name(self.names, self.model.gun or self.guns[0][1], True) if self.guns else 'Орудие не выбрано'
-        status = QLabel('проверено в игре')
-        status.setObjectName('ammoStatus')
         top.addStretch()
-        top.addWidget(status)
         self.load_lay.addLayout(top)
         if self.model.gun:
             i = self.gun_combo.findData(self.model.gun)
@@ -579,7 +577,6 @@ class AmmoPage(QWidget):
         title.setToolTip(shell.name)
         edit_head = QHBoxLayout()
         edit_head.addWidget(title, 1)
-        edit_head.addWidget(self._label('проверено в игре', 'ammoStatus'))
         self.edit_lay.addLayout(edit_head)
         reset_fields = QPushButton('Сбросить поля')
         reset_fields.clicked.connect(lambda: self.reset_fields(key))

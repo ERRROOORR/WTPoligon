@@ -293,7 +293,8 @@ class TestStats(unittest.TestCase):
         values = {p.path: model.value(p) for p in model.params if p.section == 'РЛС'}
         self.assertEqual(values['scanPatterns/searchWide/azimuthLimits'], (-20, 20))
         self.assertEqual(values['scanPatterns/searchNarrow/azimuthLimits'], (-10, 10))
-        self.assertEqual(values['scanPatterns/track/azimuthLimits'], (-10, 10))
+        # сопровождение и ближний бой — тоже, пропорционально (иначе НСЦ и захват остаются штатными)
+        self.assertAlmostEqual(values['scanPatterns/track/azimuthLimits'][1], 10 * 20 / 60)
         self.assertEqual(values['scanPatterns/searchWide/width'], 40)
         self.assertEqual(values['scanPatterns/searchWide/elevationLimits'], (-10, 10))
         self.assertEqual(values['scanPatterns/searchWide/barHeight'], 5)

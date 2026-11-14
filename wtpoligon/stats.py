@@ -512,14 +512,25 @@ class Stats:
             return sum(self.display(p) * p.count for p in chosen)
         return self.display(rows[0])
 
+    def _emitting(self, file):
+        """Сенсор излучает (настоящая РЛС), а не только принимает: у пеленгаторов (HARM ESM) тоже type=radar,
+        но передатчики active=no / visibilityType=radarIntercept — общие поля РЛС их не трогают."""
+        tree = self.trees.get(file)
+        tr = tree.block('transivers') if tree is not None else None
+        return bool(tr and any(t.get('active') is not False and t.get('visibilityType') != 'radarIntercept'
+                               for t in tr.blocks))
+
     def radar_rows(self, metric):
+        rows = self._radar_rows(metric)
+        return [p for p in rows if self._emitting(p.file)]
+
+    def _radar_rows(self, metric):
         if metric in RADAR_ANGLES:
             field = RADAR_ANGLES[metric][0]
+            # все шаблоны: поиск, СНП, ближний бой (boresight/vertical/ss/hmdLock) и сопровождение (track) —
+            # иначе НСЦ остаётся штатным, а захват за прежней границей срывается (проверено в игре, F-15EX)
             return [p for p in self.params if p.section == 'РЛС' and p.type == 'p2'
                     and p.path.startswith('scanPatterns/') and p.path.endswith('/' + field)
-                    and 'track' not in p.path.split('/')[1].lower()
-                    and ('lock' not in p.path.split('/')[1].lower()
-                         or 'search' in p.path.split('/')[1].lower())
                     and max(abs(v) for v in self.value(p)) > 0]
         if metric == 'beam':
             return [p for p in self.params if p.section == 'РЛС' and p.type in ('r', 'i')
@@ -561,6 +572,15 @@ class Stats:
                             self.set(other, maximum)
                 else:
                     self.set(p, self.display(p) * value / old)
+            if metric in RADAR_ANGLES:      # куда можно двигать сектор: автомат РЛС, а не только рамка шкалы
+                field = 'azimuthRange' if metric == 'azimuth' else 'elevationRange'
+                for q in self.params:
+                    if (q.section == 'РЛС' and q.type == 'p2' and q.path.startswith('fsms/') and self._emitting(q.file)
+                            and q.path.endswith('/setTargetDesignationRange/' + field)):
+                        lo, hi = self.value(q)
+                        if hi > 0:
+                            half = max(abs(lo), abs(hi)) * value / old
+                            self.set(q, (-half if lo < 0 else lo, half))
         except (ValueError, TypeError):
             self.values = previous
             raise
@@ -584,11 +604,23 @@ class Stats:
             old = self.general(section)
             if not old or value <= 0:
                 raise ValueError('дальность должна быть больше нуля')
-            rows = [p for p in self.params if p.section == 'РЛС' and p.path.endswith('/range')]
+            # дальность РЛС в игре — несколько полей сразу (F-15EX: зелёная область = fsms distanceRange 178 км,
+            # шкала = scopeRangeSets, обнаружение = transivers range/rangeMax); только излучающие РЛС
+            k = value / old
             previous = self.values.copy()
             try:
-                for p in rows:
-                    self.set(p, self.display(p) * value / old)
+                for p in self.params:
+                    if p.section != 'РЛС' or not self._emitting(p.file):
+                        continue
+                    leaf = p.path.rsplit('/', 1)[-1]
+                    if p.path.startswith('transivers/') and leaf in ('range', 'rangeMax') and p.type in ('r', 'i'):
+                        self.set(p, self.display(p) * k)
+                    elif (p.path.startswith('scopeRangeSets/') and leaf.startswith('range') and leaf[5:].isdigit()
+                          and p.type in ('r', 'i')):
+                        self.set(p, self.display(p) * k)
+                    elif p.path.endswith('/setTargetDesignationRange/distanceRange') and p.type == 'p2':
+                        lo, hi = self.value(p)
+                        self.set(p, (lo, hi * k))
             except (ValueError, TypeError):
                 self.values = previous
                 raise

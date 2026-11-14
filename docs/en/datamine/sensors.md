@@ -49,3 +49,14 @@ For a range edit, make a sensor copy and point the vehicle's matching `sensors/s
 | `WeaponSlots/WeaponSlot/WeaponPreset/Weapon/bullets` with `trigger=countermeasures` | Aircraft BLK | Launcher quantity, integer | Verified in game | Increased count appeared on HUD and dispensed. |
 
 The RWR result must be read with its emitter: the first attempt with a non-radiating opponent produced no useful range observation. Against an aircraft radar, reducing RWR root `range` moved the warning point inward. A ground radar still triggered farther away; transmitter power or other factors are plausible, but their formula remains unverified. The radar detection test changed `transivers/*/range`, while display `scopeRangeSets` stayed separate.
+
+## Radar coverage, range and scale
+
+| Claim | Evidence |
+|---|---|
+| Scan coverage needs **two** edits: the frame `scanPatterns/<mode>/azimuthLimits` / `elevationLimits` **and** the cue area `fsms/main/actionsTemplates/init/setTargetDesignationRange/azimuthRange` / `elevationRange`. The frame alone widens only the display scale; the cue range alone changes nothing visible. | Verified in game (F-15EX) |
+| Close-combat modes (`boresightLock`, `verticalLock`, `ssLock`, `hmdLock`) and tracking (`track`, `hmdTrack`) have their own frames; they must be edited too, otherwise close combat stays at the stock limits and a lock outside them breaks. With all patterns edited, close combat works through 360°. | Verified in game |
+| The highlighted area on the radar display (the distance at which targets are shown) is `setTargetDesignationRange/distanceRange` (F-15EX: 178 km); it does not follow `transivers/*/range` or `rangeMax`. | Verified in game |
+| The display scale is `scopeRangeSets/<set>/range1..N`. | Verified in game |
+| Passive receivers (HARM targeting system) are also `type="radar"` but their transceivers have `active=no` / `visibilityType="radarIntercept"` — exclude them from radar edits. | In files only |
+| `weaponTargetsMax` (1–24 across radars) — likely the number of simultaneously guided targets. | Unverified |

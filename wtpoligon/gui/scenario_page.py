@@ -123,6 +123,7 @@ def badge(verified=False):
     w.setObjectName('badge')
     w.setProperty('verified', verified)
     w.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Fixed)
+    w.setVisible(not verified)          # в окне — только пометка «не проверено»
     return w
 
 

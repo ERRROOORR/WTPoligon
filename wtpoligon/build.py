@@ -493,8 +493,14 @@ def stock_plan(source, vehicle, in_hangar, gmods=None, scenario=None, loadout=No
             plan.problems += problems
             plan.notes += [e.note + ': %s → %s' % (e.stock, e.value) for e in stats.edits()]
         if ammo is not None and ammo.changed():
+            own_presets = ([(p, t) for p, t in plan.files if 'weaponpresets/' in p.lower()]
+                           if custom is not None else None)
             afiles, atext, _bullets, aproblems = AB.build_files(source, unit, kind, plan.weapons, ammo,
-                                                               plan.unit_class, shared_edits)
+                                                               plan.unit_class, shared_edits,
+                                                               custom_presets=own_presets)
+            replaced = dict(afiles)
+            plan.files = [(p, replaced.pop(p)) if p in replaced else (p, t) for p, t in plan.files]
+            afiles = list(replaced.items())
             plan.files += afiles
             extra += atext
             plan.problems += aproblems

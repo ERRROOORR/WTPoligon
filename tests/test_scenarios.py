@@ -96,38 +96,21 @@ class TestScenarioBuild(Base):
         self.assertEqual(air.block('props').get('attack_type'), 'fire_at_will')
         self.assertFalse(any(a.name == 'unitSetIndication' for a in parts['init_actions']))
         self.assertTrue(any(w.name == 'ship_01_way' for w in parts['way_points']))
-        self.assertTrue(any(a.name == 'unitRestore' and a.get('target') == 'player'
-                            for t in parts['extra_triggers'] for a in t.block('actions').blocks))
+        self.assertFalse(parts['limited_ammo'])        # «Пополнять боезапас» = «Ограниченный боезапас: Нет»
         scenario.rules.moving_ships = False
         scenario.rules.restore_ammo = False
         parts = SB.mission_parts(scenario, self.src)
         self.assertFalse(any(w.name == 'ship_01_way' for w in parts['way_points']))
 
     def test_ammo_restore_without_targets_or_respawns(self):
+        # как переключатель «Ограниченный боезапас» тест-драйва игры: пополнение делает сама игра, триггеров нет
         scenario = self._empty('ground', 't1')
         scenario.rules.restore_targets = False
         parts = SB.mission_parts(scenario, self.src)
-        self.assertEqual(len(parts['extra_triggers']), 1)
-        trigger = parts['extra_triggers'][0]
-        self.assertEqual(trigger.name, 'player_ammo_restore')
-        self.assertEqual(trigger.block('events').blocks[0].name, 'periodicEvent')
-        self.assertEqual(trigger.block('events').blocks[0].get('time'), 10.0)
-        action = trigger.block('actions').blocks[0]
-        self.assertEqual(action.name, 'unitRestore')
-        self.assertEqual([action.get(k) for k in ('target', 'ammoRestore', 'fullRestore', 'ressurectIfDead',
-                                                  'target_marking')], ['player', True, False, False, 0])
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
-        try:
-            import make_test_missions as M
-        except ImportError:  # открытый репозиторий: без генератора тестов
-            self.skipTest('нет tools/make_test_missions.py')
-        case = next(c for c in M.CASES if c['id'] == 't104_r44_ammo_10s')
-        reference = B.parse_text(M.mission(case, M.PREFIX + 'r44_t80_ammo_10s'))
-        reference_trigger = reference.block('triggers').block('r44_ammo_restore')
-        reference_trigger.name = trigger.name
-        self.assertEqual(B.to_text(trigger), B.to_text(reference_trigger))
+        self.assertFalse(parts['extra_triggers'])
+        self.assertFalse(parts['limited_ammo'])
         scenario.rules.restore_ammo = False
-        self.assertFalse(SB.mission_parts(scenario, self.src)['extra_triggers'])
+        self.assertTrue(SB.mission_parts(scenario, self.src)['limited_ammo'])
 
     def test_cli_scenario_json(self):
         scenario = self._empty('ground', 't1')

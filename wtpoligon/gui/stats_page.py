@@ -197,7 +197,7 @@ class StatsPage(QWidget):
             self._parameters(section)
 
     def _names(self):
-        title = QLabel('Название · проверено в игре')
+        title = QLabel('Название')
         title.setObjectName('title')
         self.editor.addWidget(title)
         for label, attr in (('Машина в игре', 'title'), ('Миссия в списке', 'mission_title')):
@@ -401,9 +401,9 @@ class StatsPage(QWidget):
         self.editor.addLayout(title)
         for label, metric, unit, status in (
                 ('Дальность обнаружения', None, 'км', 'проверено в игре'),
-                ('Обзор по азимуту, ±°', 'azimuth', '°', 'не проверено в игре'),
-                ('Обзор по углу места, ±°', 'elevation', '°', 'не проверено в игре'),
-                ('Ширина луча, °', 'beam', '°', 'не проверено в игре')):
+                ('Обзор по азимуту, ±°', 'azimuth', '°', 'проверено в игре'),
+                ('Обзор по углу места, ±°', 'elevation', '°', 'проверено в игре'),
+                ('Ширина луча, °', 'beam', '°', 'проверено в игре')):
             value = model.general('РЛС') if metric is None else model.radar_general(metric)
             if value is None:
                 continue
@@ -436,10 +436,6 @@ class StatsPage(QWidget):
                 line.addWidget(QLabel('сток ' + number(stock)))
             line.addWidget(self._badge(status))
             self.editor.addLayout(line)
-        note = QLabel('Общие поля меняют шаблоны поиска и передатчики пропорционально. '
-                      'Шаблоны сопровождения (track, boresightLock, hmdLock) меняются только в дереве.')
-        note.setWordWrap(True)
-        self.editor.addWidget(note)
         reset = QPushButton('Сброс')
         reset.setObjectName('statsReset')
         reset.clicked.connect(lambda: self._reset('РЛС'))
@@ -533,12 +529,14 @@ class StatsPage(QWidget):
     def _badge(status):
         label = QLabel('проверено' if status == 'проверено в игре' else status)
         good = status == 'проверено в игре'
+        label.setVisible(not good)       # в окне — только пометка «не проверено» (пользователь, 15.11)
         label.setFixedHeight(21)
         label.setSizePolicy(label.sizePolicy().horizontalPolicy(), label.sizePolicy().verticalPolicy())
         label.setStyleSheet('font-size:11px;border-radius:5px;padding:2px 6px;'
                             + ('background:#1f3a1a;color:#9bd36b' if good else
                                'background:#4a3509;color:#f2c25a'))
         cell = QWidget()
+        cell.setVisible(not good)
         cell.setFixedWidth(label.sizeHint().width() + 2)
         layout = QHBoxLayout(cell)
         layout.setContentsMargins(0, 0, 0, 0)

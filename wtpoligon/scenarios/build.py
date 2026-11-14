@@ -203,16 +203,13 @@ def mission_parts(scenario, source=None):
                 triggers += t
                 ways += w
     c, r = scenario.conditions, scenario.rules
-    if r.restore_ammo:
-        # Самостоятельное пополнение: работает и без мишеней, и при отключённом их возрождении.
-        triggers.append(_trigger('player_ammo_restore', True,
-                                 [B.Block('periodicEvent', [('time', 'r', 10.0)])], [],
-                                 [_ammo_restore()], True))
+    # «Пополнять боезапас» = переключатель «Ограниченный боезапас: Нет» тест-драйва игры (isLimitedAmmo=no):
+    # пополнение после того, как всё выпущено, делает сама игра (проверено в игре — самолёт)
     # Источник: исходники/missions.py M.build: environment/weather/difficulty/isLimitedFuel.
     config.update(extra_units=units, init_actions=init, extra_triggers=triggers, way_points=ways,
                   environment=TIMES.get(c.time, c.time), weather=WEATHER.get(c.weather, c.weather),
                   difficulty=DIFFICULTIES.get(c.difficulty, c.difficulty), infinite_fuel=r.infinite_fuel,
-                  player_respawn=r.player_respawn)
+                  player_respawn=r.player_respawn, limited_ammo=not r.restore_ammo)
     return config
 
 
