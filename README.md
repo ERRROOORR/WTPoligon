@@ -12,30 +12,27 @@ The in-game test drive only lets you try a vehicle as it is. WT Poligon lets you
 - build a **scenario** — targets picked automatically by battle rating or by hand, duels, weather, time, rules;
 - **roll everything back** — game files are never modified, everything the program writes can be removed.
 
-**Status: closed beta (1.47).** What to test — [docs/TESTING.md](docs/TESTING.md).
+**Status: closed beta (2.0-beta).** What to test — [docs/TESTING.md](docs/TESTING.md).
 
-## What's new in 1.47
-
-- **Radar** (verified in game): coverage works in every mode including close combat (up to 360°); detection range
-  changes the displayed range, the scale and the transmitters together.
-- **Restore ammunition** works like the game's test drive ("Limited ammunition: No") — rearm after everything is fired.
-- Missile containers (×2, ×4) on any pylon carry all their missiles; empty pylons can no longer be selected.
-- The window shows only "not verified" marks.
-
-## What's new in 1.35 (since Beta-1.0)
+## What's new in 2.0-beta
 
 - **Called-in vehicles** — new step: any aircraft as your vehicle's drone, or tanks / SAM launchers as escorts;
   your own saved vehicles can be called too.
 - **My vehicles** — save a configured vehicle and open it later; saved vehicles show up in the vehicle search.
-- **Bomb planes (Mistel)** — hang the Mistel on any aircraft, choose **any aircraft** to hang below and its
+- **Bomb planes (Mistel)** — hang the Mistel on any aircraft and choose **any aircraft** to hang below with its own
   warhead (explosive mass or nuclear; nuclear gives nuclear damage with an ordinary-looking blast).
+- **Radar** (verified in game): coverage in every mode including close combat (up to 360°); detection range changes
+  the displayed range, the scale and the transmitters together.
+- **Restore ammunition** works like the game's test drive ("Limited ammunition: No") — rearm after everything is fired.
 - **Nuclear charge** for bombs, missiles and shells in *Ammunition*; **Reload** section in *Characteristics*
-  (down to instant reload); *Restore ammunition* option in *Scenario*.
-- **No "Return to the battlefield" on the firing range** — narrow maps get their own level copy with wide
-  borders (📄 not yet verified in game).
+  (down to instant reload).
+- Missile containers (×2, ×4) on any pylon carry all their missiles; empty pylons can't be selected.
+- **No "Return to the battlefield" on the firing range** — narrow maps get their own level copy with wide borders
+  (📄 not yet verified in game).
 - **Program log** — `%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`; the *Logs* button adds it to the archive.
-- Fixes for game version 2.61: writing works again, 510 vehicles with a hyphen in the name and 141 aircraft without
-  an explicit flight model launch again, *Characteristics* reopen instantly, typo-tolerant search everywhere.
+- Fixes for game version 2.61: writing works again, vehicles with a hyphen in the name and aircraft without an explicit
+  flight model launch again, *Characteristics* reopen instantly, typo-tolerant search everywhere; the window shows
+  only "not verified" marks.
 
 Full list — [CHANGELOG.md](CHANGELOG.md).
 
@@ -70,30 +67,27 @@ The interface is in Russian for now; English is planned.
 - собрать **сценарий** — цели с автоподбором по БР или вручную, дуэли, погоду, время, правила;
 - **всё откатить** — файлы игры не меняются, всё, что записала программа, удаляется.
 
-**Состояние: закрытая бета (1.47).** Что проверять — [docs/TESTING.md](docs/TESTING.md).
+**Состояние: закрытая бета (2.0-beta).** Что проверять — [docs/TESTING.md](docs/TESTING.md).
 
-## Что нового в 1.47
-
-- **РЛС** (проверено в игре): обзор во всех режимах, включая ближний бой (до 360°); дальность обнаружения меняет
-  и зону отображения целей, и шкалу, и передатчики.
-- **«Пополнять боезапас»** — как в тест-драйве игры («Ограниченный боезапас: Нет»): пополнение после того, как всё выпущено.
-- Контейнеры с ракетами (×2, ×4) на любом пилоне несут все ракеты; на пустые пилоны больше нельзя ничего выбрать.
-- В окне остались только пометки «не проверено».
-
-## Что нового в 1.35 (после Beta-1.0)
+## Что нового в 2.0-beta
 
 - **Вызываемая техника** — новый шаг: любой самолёт как дрон вашей машины или танки / пусковые ЗРК в сопровождение;
   вызывать можно и свою сохранённую технику.
 - **Моя техника** — сохранить настроенную машину и открыть позже; сохранённые видны в поиске техники.
 - **Самолёты-бомбы (Mistel)** — Mistel на любом самолёте, снизу — **любой самолёт** со своей боевой частью
   (масса взрывчатки или ядерная; ядерная даёт ядерный урон, но взрыв выглядит обычным).
+- **РЛС** (проверено в игре): обзор во всех режимах, включая ближний бой (до 360°); дальность обнаружения меняет
+  и зону отображения целей, и шкалу, и передатчики.
+- **«Пополнять боезапас»** — как в тест-драйве игры («Ограниченный боезапас: Нет»): пополнение после того, как всё выпущено.
 - **Ядерный заряд** для бомб, ракет и снарядов в «Боеприпасах»; раздел **«Перезарядка»** в «Характеристиках»
-  (вплоть до мгновенной); «Пополнять боезапас» в «Сценарии».
+  (вплоть до мгновенной).
+- Контейнеры с ракетами (×2, ×4) на любом пилоне несут все ракеты; пустые пилоны выбрать нельзя.
 - **Без «Вернитесь на поле боя» на полигоне** — узкие карты получают свою копию уровня с широкой границей
   (📄 в игре ещё не проверено).
 - **Журнал программы** — `%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`; кнопка «Логи» кладёт его в архив.
-- Исправления под версию игры 2.61: запись снова работает, снова запускаются 510 машин с дефисом в имени и 141 самолёт
-  без явной лётной модели, «Характеристики» открываются мгновенно, поиск с опечатками везде.
+- Исправления под версию игры 2.61: запись снова работает, снова запускаются машины с дефисом в имени и самолёты без
+  явной лётной модели, «Характеристики» открываются мгновенно, поиск с опечатками везде; в окне — только пометки
+  «не проверено».
 
 Полный список — [CHANGELOG.md](CHANGELOG.md).
 
