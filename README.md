@@ -38,7 +38,7 @@ Full list — [CHANGELOG.md](CHANGELOG.md).
 
 ## Download and install
 
-**[⬇ Download WT Poligon Beta-1.0](https://github.com/ERRROOORR/WTPoligon/releases/download/v1.0-beta/WTPoligon-Beta-1.0.zip)**
+**[⬇ Download WT Poligon 2.0-beta](https://github.com/ERRROOORR/WTPoligon/releases/download/v2.0-beta/WTPoligon-2.0-beta.zip)**
 (Windows, 83 MB) · [all releases](https://github.com/ERRROOORR/WTPoligon/releases)
 
 1. Download the archive and extract it to any folder (do not run it from inside the archive).
@@ -93,7 +93,7 @@ The interface is in Russian for now; English is planned.
 
 ## Скачать и установить
 
-**[⬇ Скачать WT Poligon Beta-1.0](https://github.com/ERRROOORR/WTPoligon/releases/download/v1.0-beta/WTPoligon-Beta-1.0.zip)**
+**[⬇ Скачать WT Poligon 2.0-beta](https://github.com/ERRROOORR/WTPoligon/releases/download/v2.0-beta/WTPoligon-2.0-beta.zip)**
 (Windows, 83 МБ) · [все версии](https://github.com/ERRROOORR/WTPoligon/releases)
 
 1. Скачайте архив и распакуйте в любую папку (не запускайте прямо из архива).
