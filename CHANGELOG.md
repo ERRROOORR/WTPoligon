@@ -1,33 +1,60 @@
 # Changelog / Журнал изменений
 
-## 2.0-beta — 2026-11-15 (closed beta / закрытая бета)
-- Radar: coverage in all modes incl. close combat and tracking (+ cue area); detection range = transmitters + displayed
-  distance + scale; passive receivers untouched. / РЛС: обзор во всех режимах вкл. НСЦ и сопровождение; дальность —
-  передатчики + зона отображения целей + шкала; пассивные приёмники не трогаются.
-- Restore ammunition = "Limited ammunition: No" (`isLimitedAmmo=no`). / «Пополнять боезапас» = «Ограниченный боезапас: Нет».
-- Missile containers keep all missiles on foreign pylons; empty slots not selectable; own loadout + gun copy;
-  aircraft have no guns/belts block in Ammunition. / Контейнеры с ракетами; пустые пилоны; своя подвеска + копия пушки;
-  у авиации нет блока «Пушки, ленты».
-- Only "not verified" marks in the window. / В окне только пометки «не проверено».
-- New step *Called-in vehicles* (any aircraft as a drone, tanks / SAM launchers as escorts, own saved vehicles). /
-  Новый шаг «Вызываемая техника» (любой самолёт как дрон, танки / ЗРК в сопровождение, своя техника).
-- *My vehicles*: save / open / rename / delete configured vehicles. / «Моя техника»: сохранить, открыть, переименовать, удалить.
-- Bomb planes (Mistel): any carrier, any aircraft below, its warhead (explosive or nuclear — nuclear damage, ordinary
-  visuals); only one per aircraft. / Самолёты-бомбы (Mistel): любой носитель, любой самолёт снизу, его боевая часть
-  (взрывчатка или ядерная — урон ядерный, вид обычный); один на самолёт.
-- Nuclear charge in *Ammunition*; *Reload* in *Characteristics*; *Restore ammunition* in *Scenario*; one gun copy per
-  vehicle with all edits merged; *Reset ammo rack* button. / Ядерный заряд, «Перезарядка», «Пополнять боезапас»;
-  одна копия орудия со всеми правками; кнопка «Сбросить боекомплект».
-- No return-to-battle zone on narrow maps (own level copy with wide borders) — 📄 unverified. /
-  Без зоны возврата на узких картах (своя копия уровня) — 📄 не проверено.
-- Program log `logs\wtpoligon.log` (also in the *Logs* archive). / Журнал программы (и в архиве «Логи»).
-- Game 2.61 fixes: lowercase weapon paths, mission names without hyphens, aircraft without `fmFile`, service entry
-  `dummy_plane` hidden, *Characteristics* cache. / Исправления под игру 2.61.
+## 2.0-beta — 2026-11-15, closed beta
 
-## Beta-1.0 — 2026-10-31 (closed beta / закрытая бета)
-First public release of the program code. / Первая публикация кода программы.
+- New step *Called-in vehicles*: any aircraft as a drone, tanks and SAM launchers as escort, own saved vehicles.
+- *My vehicles*: save, open, rename and delete configured vehicles.
+- Bomb planes (Mistel): any carrier, any aircraft below, its warhead (explosive or nuclear: nuclear damage, ordinary
+  visuals). One per aircraft.
+- Radar: coverage in all modes including close combat and tracking, plus the cue area. Detection range changes the
+  transmitters, the displayed range and the scale. Passive receivers are not changed.
+- *Restore ammunition* = "Limited ammunition: No" (`isLimitedAmmo=no`).
+- Nuclear charge in *Ammunition*; *Reload* in *Characteristics*; *Restore ammunition* in *Scenario*. One gun copy per
+  vehicle with all edits merged. *Reset ammo rack* button.
+- Missile containers keep all missiles on other aircraft's pylons. Empty pylons can't be selected. Custom loadout
+  together with a gun copy. No guns/belts block in *Ammunition* for aircraft.
+- No return-to-battle zone on narrow maps (level copy with wide borders) — 📄 not verified.
+- Program log `logs\wtpoligon.log`, also in the *Logs* archive.
+- Fixes for game 2.61: lowercase weapon paths, mission names without hyphens, aircraft without `fmFile`, service entry
+  `dummy_plane` hidden, *Characteristics* cache.
+- Only "not verified" marks in the window.
+
+## Beta-1.0 — 2026-10-31, closed beta
+
+First public release of the program code.
+
 - Steps: Vehicle → Loadout (aircraft) → Characteristics → Ammunition → Scenario → Review and write.
-  Шаги: Техника → Подвеска (авиация) → Характеристики → Боеприпасы → Сценарий → Проверка и запись.
-- Any vehicle, any weapon on any pylon, weightless loadout, engine/mass/radar/RWR/countermeasure edits, ammo rack and
-  shell edits, scenarios with BR-based target picking, rollback, “Logs” button.
-- 📄 = not yet verified in game: afterburner thrust, radar angles, ammunition edits, most scenario options.
+- Any vehicle, any weapon on any pylon, weightless loadout; engine, mass, radar, RWR and countermeasure edits; ammo
+  rack and shell edits; scenarios with targets by battle rating; rollback; "Logs" button.
+- 📄 = not verified in game: afterburner thrust, radar angles, ammunition edits, most scenario options.
+
+---
+
+## 2.0-beta — 15.11.2026, закрытая бета
+
+- Новый шаг «Вызываемая техника»: любой самолёт как дрон, танки и пусковые ЗРК в сопровождение, своя сохранённая
+  техника.
+- «Моя техника»: сохранение, открытие, переименование и удаление настроенных машин.
+- Самолёты-бомбы (Mistel): любой носитель, любой самолёт снизу, его боевая часть (взрывчатка или ядерная: урон
+  ядерный, вид обычный). Один на самолёт.
+- РЛС: обзор во всех режимах, в том числе НСЦ и сопровождение, и область наведения. Дальность обнаружения меняет
+  передатчики, зону отображения целей и шкалу. Пассивные приёмники не меняются.
+- «Пополнять боезапас» = «Ограниченный боезапас: Нет» (`isLimitedAmmo=no`).
+- Ядерный заряд в «Боеприпасах»; «Перезарядка» в «Характеристиках»; «Пополнять боезапас» в «Сценарии». Одна копия
+  орудия со всеми правками. Кнопка «Сбросить боекомплект».
+- Контейнеры с ракетами на чужом пилоне — со всеми ракетами. Пустые пилоны не выбираются. Своя подвеска вместе
+  с копией пушки. У авиации в «Боеприпасах» нет блока «Пушки, ленты».
+- Без зоны возврата на узких картах (копия уровня с широкой границей) — 📄 не проверено.
+- Журнал программы `logs\wtpoligon.log`, он же в архиве «Логи».
+- Исправления под игру 2.61: пути к оружию строчными, имена миссий без дефиса, самолёты без `fmFile`, скрыта служебная
+  запись `dummy_plane`, кэш «Характеристик».
+- В окне только пометки «не проверено».
+
+## Beta-1.0 — 31.10.2026, закрытая бета
+
+Первая публикация кода программы.
+
+- Шаги: Техника → Подвеска (авиация) → Характеристики → Боеприпасы → Сценарий → Проверка и запись.
+- Любая техника, любое оружие на любой пилон, невесомая подвеска; правка двигателя, массы, РЛС, СПО и ловушек;
+  правка боекомплекта и снарядов; сценарии с подбором целей по БР; откат; кнопка «Логи».
+- 📄 — в игре не проверено: тяга на форсаже, углы РЛС, правки боеприпасов, большинство настроек сценария.

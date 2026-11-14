@@ -2,8 +2,15 @@
 
 # Contributing
 
-Report documentation errors or datamining findings with the game version, the virtual BLK path and full field path, original value and type, proposed change, and expected behavior. Mark a finding **Unverified (in files only)** until there is a controlled in-game comparison.
+To report a documentation error or a datamining finding, give the game version, the virtual BLK path and the full
+field path, the original value and type, the proposed change and the expected behavior. Mark a finding
+**Unverified (in files only)** until it is compared in the game.
 
-For **Verified in game**, describe a stock control and a changed case that differ in one field, the mission reload or game restart used, the observable result, and whether it was repeated. Check the game log for parser errors; a clean log alone does not prove gameplay behavior. For **No effect**, state the tested range and observation, not a universal claim that the field is ignored.
+For **Verified in game**, describe two cases that differ in one field: stock and changed. State how the mission or
+the game was reloaded, the observed result and whether it was repeated. Check the game log for parser errors; a clean
+log does not prove an effect in gameplay. For **No effect**, state the tested values and the observation, not a claim
+that the game ignores the field.
 
-Use your own words and share only the minimum evidence needed to reproduce the finding. Remove personal paths, account details, raw logs, game files, extracted data and images before posting. A short excerpt of a BLK field name or path is enough for a report. Documentation changes should update both `docs/en/` and `docs/ru/` at matching paths and keep the cross-language link at the top.
+Write in your own words and send only what is needed to reproduce the finding. Remove personal paths, account
+details, raw logs, game files, extracted data and images. A BLK field name or path is enough. Documentation changes go
+to both `docs/en/` and `docs/ru/` at matching paths, with the link to the other language at the top.
