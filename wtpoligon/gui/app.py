@@ -51,8 +51,12 @@ def main(argv=None):
     from .theme import apply_dark
     from .window import MainWindow
 
+    from .. import applog
+    from ..logs import _version
     a = _args(sys.argv[1:] if argv is None else argv)
+    applog.setup(a.app_dir or P.app_root(), _version())
     app = QApplication.instance() or QApplication(sys.argv[:1])
+    applog.install_qt_handler()
     apply_dark(app)
 
     def ask_game():
@@ -68,6 +72,7 @@ def main(argv=None):
         src, vehicles, root, target = open_context(a, ask_game)
     except (FileNotFoundError, OSError, ValueError) as e:
         app.restoreOverrideCursor()
+        applog.LOG.exception('Не удалось открыть игру')
         QMessageBox.critical(None, 'WT Poligon 5', str(e))
         return 2
     app.restoreOverrideCursor()

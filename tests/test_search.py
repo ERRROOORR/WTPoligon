@@ -41,6 +41,15 @@ class TestSearch(unittest.TestCase):
         self.assertEqual(X.clean_name('␙M1A1'), 'M1A1')
         self.assertEqual(X.clean_name('▄Tigre  HAD-E'), 'Tigre HAD-E')
 
+    def test_common_label_search(self):
+        self.assertTrue(S.matches('абрамс', 'M1 Abrams'))
+        self.assertTrue(S.matches('f15', 'F-15C Golden Eagle'))
+        self.assertTrue(S.matches('ф15с', 'F-15C Golden Eagle'))
+        self.assertTrue(S.matches('фикфьы', 'M1 Abrams'))
+        self.assertTrue(S.matches('ахчг', 'F-XU'))
+        self.assertTrue(S.matches('exploionFx', 'explosionFx'))
+        self.assertFalse(S.matches('zzzzqqq', 'M1 Abrams'))
+
 
 if __name__ == '__main__':
     unittest.main()

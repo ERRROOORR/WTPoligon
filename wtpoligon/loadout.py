@@ -1,18 +1,17 @@
-"""Конструктор подвески авиации (этап 3, ТЗ §6.4; docs/research/pylons_survey.md, круги 17–22 и 31).
+"""Конструктор подвески авиации.
 
 Что проверено в игре и на чём стоит модуль:
   - новая схема (WeaponSlots): свой пресет = файл weaponPresets/<копия>_<имя>.blk со списком Weapon{slot, preset}
-    + запись preset{name, blk} в "@override:weapon_presets" копии самолёта (17-й круг);
+    + запись preset{name, blk} в "@override:weapon_presets" копии самолёта;
   - «любое оружие» на пилоне = новый вариант слота: копия варианта-образца (узлы ShowNodes, параметры Weapon) без
-    reqModification и запретов, с другим файлом оружия (ФАБ-9000 на эмиттерах 500-фунтовок, 17-й круг);
-  - старая схема (только weapon_presets): свой пресет = include стокового файла пресета + замена Weapon[n]/blk
-    (A-20G, 19-й круг);
+    reqModification и запретов, с другим файлом оружия;
+  - старая схема (только weapon_presets): свой пресет = include стокового файла пресета + замена Weapon[n]/blk;
   - свой пресет работает только у копии под своим именем: имя, добавленное в userVehicles машины из ангара, игра
-    ищет в стоковом файле (22-й круг) — поэтому изменённая подвеска всегда едет копией; штатный пресет без
+    ищет в стоковом файле — поэтому изменённая подвеска всегда едет копией; штатный пресет без
     изменений — и у машины из ангара (настоящее имя);
   - пределы maxloadMass*, maxDisbalance и запреты BannedWeaponPreset миссия не проверяет, масса и перекос
-    действуют в полёте (17-й круг) → программа их показывает и объясняет, но не запрещает;
-  - невесомая подвеска = копия ЛМ с EmptyMass − Mп + "@override:fmFile" (подтверждено, круги 19–20 и 31); масса
+    действуют в полёте → программа их показывает и объясняет, но не запрещает;
+  - невесомая подвеска = копия ЛМ с EmptyMass − Mп + "@override:fmFile"; масса
     подвески Mп = боеприпас × bullets + Weapon/mass + mass верхнего уровня файла оружия (держатель).
 Пары пилонов и стороны по именам вариантов — только подсказка (pylons_survey.md «Парные точки»).
 """
@@ -198,24 +197,29 @@ def _swap_side(name):
 @dataclass
 class Loadout:
     """Подвеска. Новая схема: slots {слот: {'variant': имя} | {'weapon': путь, 'sample': вариант-образец[,
-    'count': сколько точек образца занять — первые по порядку, как одна ФАБ в отсеке в 18-м круге]}};
+    'count': сколько точек образца занять — первые по порядку, как одна ФАБ в отсеке]}};
     пустой слот — нет в slots. Старая схема: base — штатный пресет-основа, legacy {номер Weapon с 1: путь}."""
     base: str = ''
     slots: dict = field(default_factory=dict)
     legacy: dict = field(default_factory=dict)
     weightless: bool = False
     name: str = ''
+    # самолёт-бомба: {'vehicle': самолёт снизу или '', 'explosive_mass': кг или None,
+    # 'nuclear_kt': кт или None}; пусто — штатный
+    bomb_plane: dict = field(default_factory=dict)
 
     def to_dict(self):
         return {'base': self.base, 'slots': {str(k): v for k, v in sorted(self.slots.items())},
                 'legacy': {str(k): v for k, v in sorted(self.legacy.items())}, 'weightless': self.weightless,
-                'name': self.name}
+                'name': self.name, 'bomb_plane': dict(self.bomb_plane)}
 
     @classmethod
     def from_dict(cls, d):
-        return cls(d.get('base', ''), {int(k): dict(v) for k, v in (d.get('slots') or {}).items()},
+        lo = cls(d.get('base', ''), {int(k): dict(v) for k, v in (d.get('slots') or {}).items()},
                    {int(k): v for k, v in (d.get('legacy') or {}).items()}, bool(d.get('weightless')),
                    d.get('name', ''))
+        lo.bomb_plane = dict(d.get('bomb_plane') or {})
+        return lo
 
 
 def from_preset(source, pylons, name):
@@ -731,18 +735,18 @@ def summarize(source, pylons, lo, catalog=None):
                 _kind_warning(source, path, weapons[i - 1].get('blk'), by_path, sm, 'точка %d' % i)
         if lo.legacy:
             sm.warnings.append(('info', 'Старая схема подвески: свой пресет — копия штатного «%s» с заменой оружия '
-                                        'на точках (проверено в игре на A-20G, 19-й круг).' % lo.base))
+                                        'на точках.' % lo.base))
     if lo.weightless:
         _weightless(source, pylons, sm)
     return sm
 
 
-# наземное/морское оружие («орудия» ЗРК, танков, кораблей), которого нет у стоковой авиации. 32-й круг
-# (round32_checklist.md): в наземном формате (cannon + bullet{rocket}) на пилоне F-15C игра падает при старте
+# наземное/морское оружие («орудия» ЗРК, танков, кораблей), которого нет у стоковой авиации.
+#: в наземном формате (cannon + bullet{rocket}) на пилоне F-15C игра падает при старте
 # миссии (67, как 95Я6М 26.10); переделанная в авиационную ракету (rocketGun + блок rocket) ЗУР с ГСН пускается,
 # захватывает и наводится (69). Поэтому ЗУР программа переделывает сама (air_rocket_text), остальное — «⚠»
 RISKY_FOLDERS = ('groundmodels_weapons', 'navalmodels_weapons', 'human_weapons')
-RISKY_TEXT = ('%s: наземное/морское оружие на пилоне — игра может упасть при старте миссии (32-й круг: '
+RISKY_TEXT = ('%s: наземное/морское оружие на пилоне — игра может упасть при старте миссии (: '
               'ЗУР в наземном формате уронила игру).')
 CONVERT_TEXT = ('%s: %s — ракета наземки/флота, переделана в авиационную (проверено в игре: ЗУР с ГСН и '
                 'с наведением по командам пускаются, наводятся и видны на пилоне)')
@@ -767,21 +771,23 @@ def _ground_rocket(source, path):
     return (tree, bullet.block('rocket')) if bullet is not None and bullet.block('rocket') is not None else None
 
 
-def air_copy_path(path):
+def air_copy_path(path, text=None):
     """Путь авиационной ракеты, переделанной программой из ЗУР."""
-    return '%s%s%s_air.blk' % (AIR_COPY_DIR, PREFIX, weapon_stem(path))
+    import hashlib
+    suffix = '_' + hashlib.sha256(text.encode('utf-8')).hexdigest()[:12] if text is not None else ''
+    return '%s%s%s_air%s.blk' % (AIR_COPY_DIR, PREFIX, weapon_stem(path), suffix)
 
 
 def air_rocket_text(source, path):
     """Текст авиационной ракеты из ЗУР наземного формата: rocketGun, 1 штука, mesh и блок rocket из bullet (как
-    rocketGuns/us_aim_120c_5.blk; проверено в игре 32-м кругом, миссия 69). None — переделка не нужна."""
+    rocketGuns/us_aim_120c_5.blk; проверено в игре, миссия 69). None — переделка не нужна."""
     if 'groundmodels_weapons/' not in weapon_key(path) and 'navalmodels_weapons/' not in weapon_key(path):
         return None
     found = _ground_rocket(source, path)
     if found is None:
         return None
     tree, rocket = found
-    return ('// WT Poligon 5: %s переделана в авиационную ракету (rocketGun + rocket{} из bullet), 32-й круг\n'
+    return ('// WT Poligon 5: %s переделана в авиационную ракету (rocketGun + rocket{} из bullet)\n'
             'rocketGun:b=yes\nbullets:i=1\nshotFreq:r=1.0\n%s%s' % (
                 path, ''.join('%s:t=%s\n' % (k, B.quote(v)) for k, v in air_rocket_look(tree, rocket)),
                 B.to_text(B.Block(None, blocks=[rocket]))))
@@ -791,7 +797,7 @@ def air_rocket_look(tree, rocket):
     """Вид ракеты для самолёта — поля верха файла, как у авиационных ракет. У наземной ЗУР они в блоке rocket
     или у пусковой: модель на пилоне (mesh; анимированная — animChar, как rocketGuns/us_127mm_tow.blk), модель
     в полёте (mesh_deployed, shellAnimChar — как su_kh_59m.blk). Без них 95Я6М на пилоне не видна, а летит
-    моделью «ракета в контейнере» (пользователь, 32-й круг)."""
+    моделью «ракета в контейнере»."""
     out = [('mesh', rocket.get('mesh') or tree.get('mesh')),
            ('animChar', rocket.get('onPylonAnimChar') or rocket.get('animChar') or tree.get('animChar')),
            ('reloadAnimParam', tree.get('reloadAnimParam')),
@@ -802,7 +808,8 @@ def air_rocket_look(tree, rocket):
 
 def pylon_weapon(source, path):
     """Путь оружия для подвеса: у ЗУР наземного формата — её авиационная переделка."""
-    return air_copy_path(path) if air_rocket_text(source, path) is not None else path
+    text = air_rocket_text(source, path)
+    return air_copy_path(path, text) if text is not None else path
 
 
 def _kind_warning(source, path, sample_path, by_path, sm, where):
@@ -853,14 +860,14 @@ def _banned_warnings(pylons, lo, sm):
         for slot, preset in (v.banned if v else []):
             if chosen.get(slot) == preset:
                 sm.warnings.append(('info', 'пилоны %d и %d: в ангаре «%s» нельзя вместе с «%s» — в миссии игра это '
-                                            'не проверяет, будет висеть оба (17-й круг)' % (i, slot, name, preset)))
+                                            'не проверяет, будет висеть оба' % (i, slot, name, preset)))
 
 
 def _limit_warnings(pylons, sm):
     lim = pylons.limits
     if lim.get('maxloadMass') and sm.total > lim['maxloadMass']:
         sm.warnings.append(('warn', 'Масса подвески %.0f кг больше допустимой %.0f кг. В миссии игра не запретит — '
-                                    'самолёт будет тяжелее, хуже разгон и набор высоты (17-й круг); поможет '
+                                    'самолёт будет тяжелее, хуже разгон и набор высоты; поможет '
                                     '«невесомая подвеска».' % (sm.total, lim['maxloadMass'])))
     for side, kg, key in (('левой', sm.left, 'maxloadMassLeftConsoles'), ('правой', sm.right,
                                                                            'maxloadMassRightConsoles')):
@@ -869,7 +876,7 @@ def _limit_warnings(pylons, sm):
                                         'вариантов, примерно).' % (side, kg, lim[key])))
     if lim.get('maxDisbalance') and abs(sm.left - sm.right) > lim['maxDisbalance']:
         sm.warnings.append(('warn', 'Перекос %.0f кг (слева %.0f, справа %.0f) больше допустимого %.0f кг: самолёт '
-                                    'будет тянуть в тяжёлую сторону (17-й круг — «не сильно»).' % (
+                                    'будет тянуть в тяжёлую сторону.' % (
                                         abs(sm.left - sm.right), sm.left, sm.right, lim['maxDisbalance'])))
     if sm.unknown_side:
         sm.warnings.append(('info', '%.0f кг — на пилонах, сторона которых по файлам не ясна: перекос посчитан '
@@ -903,13 +910,13 @@ def _weightless(source, pylons, sm):
                                         'в игре.'))
     sm.warnings.append(('info', 'Невесомая подвеска: летит примерно как пустой; после сброса/пуска всего — легче '
                                 'пустого на %.0f кг; инерция и центровка от подвески не компенсируются; лёгкий планер '
-                                'быстрее выходит на перегрузку (круг 31).' % sm.total))
+                                'быстрее выходит на перегрузку.' % sm.total))
 
 
 WEIGHTLESS_HINT = ('Невесомая подвеска: программа вычтет массу подвески из пустой массы самолёта (копия лётной '
                    'модели). До сброса самолёт летит примерно как пустой; после сброса или пуска всего — легче '
                    'пустого на массу подвески, быстрее разгоняется и легче выходит на перегрузку. Баллистика и урон '
-                   'боеприпасов не меняются. Проверено в игре (A-26B с ФАБ-9000, круги 19–20 и 31).')
+                   'боеприпасов не меняются. Проверено в игре.')
 
 
 # ---------------------------------------------------------------- сборка: файлы копии
@@ -931,7 +938,7 @@ def preset_name(lo):
 
 def build_files(source, pylons, lo, unit_class, catalog=None):
     """Своя подвеска для копии unit_class: ([(путь от папки игры, текст)], текст правок файла копии,
-    имя пресета для миссии, проблемы). Новые варианты слотов — копии образцов (17-й круг)."""
+    имя пресета для миссии, проблемы). Новые варианты слотов — копии образцов."""
     by_path = {weapon_key(w['path']): w for w in (catalog or [])}
     problems = [t for lvl, t in summarize(source, pylons, lo, catalog).warnings if lvl == 'refuse']
     if problems:
@@ -991,7 +998,7 @@ def build_files(source, pylons, lo, unit_class, catalog=None):
     for path in sorted(set(chosen), key=weapon_key):         # ЗУР наземного формата — авиационная переделка
         text = air_rocket_text(source, path)
         if text is not None:
-            files.append((PKG + air_copy_path(path), text))
+            files.append((PKG + air_copy_path(path, text), text))
     unit_text += '"@override:weapon_presets"{\npreset{\n  name:t=%s\n  blk:t=%s\n}\n}\n' % (
         B.quote(pname), B.quote(ppath))
     if lo.weightless:
@@ -1006,7 +1013,7 @@ def build_files(source, pylons, lo, unit_class, catalog=None):
     return files, unit_text, pname, []
 
 
-def check_resolved(unit, pylons, lo, pname, unit_class):
+def check_resolved(unit, pylons, lo, pname, unit_class, source=None):
     """Сверка итогового дерева копии (после модели правок): пресет есть, свои варианты — в своих слотах."""
     out = []
     wp = unit.block('weapon_presets')
@@ -1023,7 +1030,8 @@ def check_resolved(unit, pylons, lo, pname, unit_class):
                 if v is None:
                     out.append('в слоте %d копии нет варианта %s' % (index, name))
                 elif any(weapon_key(w.get('blk')) not in (weapon_key(choice['weapon']),
-                                                          weapon_key(air_copy_path(choice['weapon'])))
+                                                           weapon_key(pylon_weapon(source, choice['weapon']) if source else
+                                                                      air_copy_path(choice['weapon'])))
                          for w in v.blocks if w.name == 'Weapon'):
                     out.append('вариант %s: оружие не %s' % (name, choice['weapon']))
     if lo.weightless and unit.get('fmFile') != 'fm/%s.blk' % unit_class:

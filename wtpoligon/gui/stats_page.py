@@ -189,6 +189,8 @@ class StatsPage(QWidget):
         section = self.menu.currentItem().text()
         if section == 'Все параметры (дерево)':
             self._tree()
+        elif section == 'Перезарядка':
+            self._reload()
         elif section == 'Название':
             self._names()
         else:
@@ -207,6 +209,37 @@ class StatsPage(QWidget):
         note = QLabel('Новые названия видны после перезапуска игры.')
         note.setObjectName('warn')
         self.editor.addWidget(note)
+        self.editor.addStretch(1)
+
+    def _reload(self):
+        rows = self.model.for_section('Перезарядка')
+        air = self.model.vehicle['kind'] in ('air', 'heli')
+        metric = 'Темп стрельбы, выстр./мин' if air else 'Перезарядка, с'
+        heading = QHBoxLayout()
+        title = QLabel('Перезарядка')
+        title.setStyleSheet('font-size:16px;font-weight:600')
+        heading.addWidget(title)
+        heading.addStretch()
+        heading.addWidget(self._badge('проверено в игре'))
+        self.editor.addLayout(heading)
+        for p in rows:
+            self.editor.addWidget(QLabel(p.label + ' · ' + metric))
+            line = QHBoxLayout()
+            edit = QLineEdit(number(self.model.reload_value(p)))
+            edit.setObjectName('statsValue')
+            edit.setFixedWidth(120)
+            edit.editingFinished.connect(lambda p=p, edit=edit: self._metric_changed(
+                edit, lambda value: self.model.set_reload(p, value)))
+            line.addWidget(edit)
+            hint = QLabel('сток ' + number(self.model.reload_value(p, stock=True)))
+            hint.setStyleSheet('font-size:11px;color:#7d7d85')
+            line.addWidget(hint)
+            line.addStretch()
+            self.editor.addLayout(line)
+        reset = QPushButton('Сброс')
+        reset.setObjectName('statsReset')
+        reset.clicked.connect(lambda: self._reset('Перезарядка'))
+        self.editor.addWidget(reset)
         self.editor.addStretch(1)
 
     def _parameters(self, section):
@@ -617,9 +650,10 @@ class StatsPage(QWidget):
         def populate(query=''):
             tree.clear()
             if query:
+                from ..game import search as GS
                 shown = 0
                 for file, path, typ, stock in self.model.all_leaves():
-                    if query.lower() not in (file + '/' + path).lower():
+                    if not GS.matches(query, file + '/' + path):
                         continue
                     value = self.model.values.get((file, path), stock)
                     item = QTreeWidgetItem(tree, [file + '/' + path, number(value), typ])

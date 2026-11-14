@@ -1,4 +1,4 @@
-"""Правила @override/@delete/… — поведение DagorEngine blk_parser.cpp (docs/research/override_format.md)."""
+"""Правила @override/@delete/… — поведение DagorEngine blk_parser.cpp."""
 import os
 import sys
 import unittest

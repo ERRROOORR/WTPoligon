@@ -12,7 +12,24 @@ The in-game test drive only lets you try a vehicle as it is. WT Poligon lets you
 - build a **scenario** — targets picked automatically by battle rating or by hand, duels, weather, time, rules;
 - **roll everything back** — game files are never modified, everything the program writes can be removed.
 
-**Status: closed beta (Beta-1.0).** What to test — [docs/TESTING.md](docs/TESTING.md).
+**Status: closed beta (1.35).** What to test — [docs/TESTING.md](docs/TESTING.md).
+
+## What's new in 1.35 (since Beta-1.0)
+
+- **Called-in vehicles** — new step: any aircraft as your vehicle's drone, or tanks / SAM launchers as escorts;
+  your own saved vehicles can be called too.
+- **My vehicles** — save a configured vehicle and open it later; saved vehicles show up in the vehicle search.
+- **Bomb planes (Mistel)** — hang the Mistel on any aircraft, choose **any aircraft** to hang below and its
+  warhead (explosive mass or nuclear; nuclear gives nuclear damage with an ordinary-looking blast).
+- **Nuclear charge** for bombs, missiles and shells in *Ammunition*; **Reload** section in *Characteristics*
+  (down to instant reload); *Restore ammunition* option in *Scenario*.
+- **No "Return to the battlefield" on the firing range** — narrow maps get their own level copy with wide
+  borders (📄 not yet verified in game).
+- **Program log** — `%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`; the *Logs* button adds it to the archive.
+- Fixes for game version 2.61: writing works again, 510 vehicles with a hyphen in the name and 141 aircraft without
+  an explicit flight model launch again, *Characteristics* reopen instantly, typo-tolerant search everywhere.
+
+Full list — [CHANGELOG.md](CHANGELOG.md).
 
 ## Download and install
 
@@ -46,6 +63,23 @@ The interface is in Russian for now; English is planned.
 - **всё откатить** — файлы игры не меняются, всё, что записала программа, удаляется.
 
 **Состояние: закрытая бета (Beta-1.0).** Что проверять — [docs/TESTING.md](docs/TESTING.md).
+
+## Что нового в 1.35 (после Beta-1.0)
+
+- **Вызываемая техника** — новый шаг: любой самолёт как дрон вашей машины или танки / пусковые ЗРК в сопровождение;
+  вызывать можно и свою сохранённую технику.
+- **Моя техника** — сохранить настроенную машину и открыть позже; сохранённые видны в поиске техники.
+- **Самолёты-бомбы (Mistel)** — Mistel на любом самолёте, снизу — **любой самолёт** со своей боевой частью
+  (масса взрывчатки или ядерная; ядерная даёт ядерный урон, но взрыв выглядит обычным).
+- **Ядерный заряд** для бомб, ракет и снарядов в «Боеприпасах»; раздел **«Перезарядка»** в «Характеристиках»
+  (вплоть до мгновенной); «Пополнять боезапас» в «Сценарии».
+- **Без «Вернитесь на поле боя» на полигоне** — узкие карты получают свою копию уровня с широкой границей
+  (📄 в игре ещё не проверено).
+- **Журнал программы** — `%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`; кнопка «Логи» кладёт его в архив.
+- Исправления под версию игры 2.61: запись снова работает, снова запускаются 510 машин с дефисом в имени и 141 самолёт
+  без явной лётной модели, «Характеристики» открываются мгновенно, поиск с опечатками везде.
+
+Полный список — [CHANGELOG.md](CHANGELOG.md).
 
 ## Скачать и установить
 

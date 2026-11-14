@@ -1,4 +1,4 @@
-﻿"""Окно (этап 2) без экрана: QT_QPA_PLATFORM=offscreen. Источник — поддельный датамайн из test_wtpoligon,
+"""Окно (этап 2) без экрана: QT_QPA_PLATFORM=offscreen. Источник — поддельный датамайн из test_wtpoligon,
 запись — во временную папку «игры». Без PySide6 тесты пропускаются (локально: pip install -r requirements.txt)."""
 import os
 import sys
@@ -46,7 +46,7 @@ class TestWindow(Base):
         w = self.window()
         self.assertEqual(w.step, 0)
         self.assertFalse(w.next_btn.isEnabled())
-        self.assertFalse(w.go(5))
+        self.assertFalse(w.go(6))
         self.assertEqual(w.vehicles_page.model.rowCount(), 5)
         w.vehicles_page.find.setText('т-1')
         self.assertEqual([v['name'] for v in w.vehicles_page.model.rows], ['t1', 't1_launcher'])
@@ -60,7 +60,7 @@ class TestWindow(Base):
         self.assertEqual(w.step_buttons[2].text().split()[0], '2')
         w.back_btn.click()
         self.assertEqual(w.step, 0)
-        self.assertTrue(w.go(5))
+        self.assertTrue(w.go(6))
         self.assertFalse(w.next_btn.isVisible())
         w.vehicles_page.select('a1')                       # самолёт — шаг есть
         self.assertTrue(w.step_buttons[1].isVisible())
@@ -121,7 +121,7 @@ class TestWindow(Base):
         w.vehicles_page.select('t1')
         w.vehicles_page.hangar.click()
         self.assertEqual(H.load(self.app), {'t1': True})
-        w.go(5)
+        w.go(6)
         self.assertEqual(w.review_page.plan.launch, 'hangar')
         w.go(0)
         w.vehicles_page.hangar.click()
@@ -156,7 +156,7 @@ class TestWindow(Base):
         w.vehicles_page.select('t1')
         sp = w.scenario_page
         self.assertEqual(sp.scenario().categories['air'].total(), 10)
-        w.go(5)
+        w.go(6)
         rp = w.review_page
         self.assertEqual(rp.problems, [])
         self.assertIn('0 ошибок', rp.summary.toPlainText())
@@ -179,7 +179,7 @@ class TestWindow(Base):
         w = self.window()
         for name in ('t1', 'a1'):
             w.vehicles_page.select(name)
-            w.go(5)
+            w.go(6)
             self.assertTrue(w.review_page.write())
         self.assertEqual(len(I.installed(self.app)), 2)
         w.confirm = lambda *_a: False
@@ -192,7 +192,7 @@ class TestWindow(Base):
     def test_no_target_no_write(self):
         w = self.window(target=False)
         w.vehicles_page.select('t1')
-        w.go(5)
+        w.go(6)
         self.assertEqual(w.review_page.problems, [])
         self.assertFalse(w.review_page.write_btn.isEnabled())
         self.assertIn('недоступна', w.review_page.target.text())

@@ -78,7 +78,10 @@ class Parse(unittest.TestCase):
 
     def test_writer_never_puts_comment_after_value(self):
         # значение без кавычек Dagor читает до // — пробелы перед комментарием могут попасть в значение
-        import make_test_missions as M
+        try:
+            import make_test_missions as M
+        except ImportError:  # открытый репозиторий: без генератора тестов
+            self.skipTest('нет tools/make_test_missions.py')
         for rel, text in M.plan(M.STANDARD_CASES):
             for line in text.split('\n'):
                 if '=' in line and '//' in line.split('=', 1)[1]:

@@ -29,3 +29,10 @@ Using an owned vehicle's real identity preserves the normal vehicle type and int
 | Unit `crewSkillK`, `props/uniqueName` | Mission unit | Skill multiplier candidate and bot name key | Unverified (in files only) | Present in stock missions; isolated player effects were not established. |
 
 The generated scenario may add ground or airborne targets, routes, check conditions and restore triggers. Those are mission BLK constructs; their presence alone does not prove each proposed scenario combination is supported. See the [program overview](../program/overview.md).
+
+## Notes for game version 2.61
+
+- Mission names (`mission_settings{mission{name}}`) accept only Latin letters, digits and `_`: a hyphen gives `invalid symbol in name` and the mission is rejected (510 vehicle names contain a hyphen — derive the mission name, do not reuse the vehicle name).
+- 141 aircraft files have no `fmFile`; the game then loads `fm/<vehicle name>.blk`. A copy under a new name must state `fmFile` of the original explicitly, otherwise `BLK not found: …/fm/<copy>.blk`.
+- Weapon paths inside vehicle files are now lowercase (`gamedata/weapons/…`); tank default presets are named `tank_weapon_preset_default`.
+- `dummy_plane` is a service entry (no country, no flight model) — not launchable.

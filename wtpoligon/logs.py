@@ -50,6 +50,9 @@ def collect(game_dir, app_root=None, out_dir=None, count=GAME_LOGS):
         for pattern in ('installs/*/*.json', '*.json'):
             for f in glob.glob(os.path.join(app_root, pattern)):
                 z.write(f, 'program/' + os.path.relpath(f, app_root).replace('\\', '/'))
+        # журнал самой программы (applog) со старыми копиями
+        for f in glob.glob(os.path.join(app_root, 'logs', 'wtpoligon.log*')):
+            z.write(f, 'program/logs/' + os.path.basename(f))
         missions = os.path.join(game_dir or '', 'UserMissions', 'WTPoligon5')
         if os.path.isdir(missions):
             info['missions'] = sorted(os.listdir(missions))

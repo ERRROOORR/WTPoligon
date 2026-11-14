@@ -362,7 +362,8 @@ def _print_plan(plan, problems, show=False):
         print('  · ' + n)
     print('Файлы (%d):' % len(plan.files))
     for rel, text in plan.files:
-        print('  %s (%d строк)' % (rel, text.count('\n')))
+        print('  %s (%s)' % (rel, '%d строк' % text.count('\n') if isinstance(text, str) else
+                               '%.1f МБ' % (len(text) / 1048576)))
     if show:
         for rel, text in plan.files:
             print('=== %s\n%s' % (rel, text))
@@ -467,6 +468,8 @@ def check_all(src, vehicles, modes=(BL.HANGAR, BL.COPY), progress=None):
             if plan is not None:
                 for rel, _ in plan.files:
                     key = rel.lower()
+                    if key.startswith('content/pkg_local/levels/'):
+                        continue              # копия уровня — общая для всех машин на этой карте (одно содержимое)
                     prev = owner.setdefault(key, (v['name'], mode))
                     if prev[0] != v['name']:
                         errors.append((v['name'], mode, 'тот же путь, что у %s: %s' % (prev[0], rel)))

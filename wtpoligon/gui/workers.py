@@ -128,13 +128,15 @@ def loadout_setup(kind, root, vehicle):
     return pylons, lo, titles, calc.selected, points, options, summary
 
 
-def review(kind, root, vehicle, in_hangar, scenario, loadout, catalog, stats, vehicles, ammo=None):
+def review(kind, root, vehicle, in_hangar, scenario, loadout, catalog, stats, vehicles, ammo=None,
+           support=None, support_library=()):
     from .. import build
     source = source_at(kind, root)
     if stats is not None:
         stats.source = source
     plan = build.stock_plan(source, vehicle, in_hangar, scenario=scenario, loadout=loadout,
-                             catalog=catalog, stats=stats, vehicles=vehicles, ammo=ammo)
+                               catalog=catalog, stats=stats, vehicles=vehicles, ammo=ammo,
+                               support=support, support_library=support_library)
     return plan, build.verify_plan(source, plan)
 
 

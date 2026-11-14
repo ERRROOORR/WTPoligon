@@ -116,7 +116,7 @@ def load_index(source, cache_dir, refresh=False):
             with open(path, encoding='utf-8') as f:
                 data = json.load(f)
             if data.get('signature') == sig and data.get('version') == INDEX_VERSION:
-                return data['vehicles'], data['stats']
+                return _playable(data['vehicles']), data['stats']
         except (OSError, ValueError, KeyError):
             pass
     vehicles, stats = build_index(source)
@@ -126,7 +126,12 @@ def load_index(source, cache_dir, refresh=False):
         json.dump({'version': INDEX_VERSION, 'signature': sig, 'vehicles': vehicles, 'stats': stats}, f,
                   ensure_ascii=False)
     os.replace(tmp, path)
-    return vehicles, stats
+    return _playable(vehicles), stats
+
+
+def _playable(vehicles):
+    """Без служебных пустышек игры: dummy_plane («...», без страны и лётной модели — FATAL ERROR при запуске)."""
+    return [v for v in vehicles if not v['name'].lower().startswith('dummy')]
 
 
 def find(vehicles, query):

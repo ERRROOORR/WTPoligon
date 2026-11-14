@@ -1,8 +1,8 @@
-﻿"""Конструктор подвески (этап 3): пилоны, своя подвеска, итоги, невесомая, библиотека, CLI, окно — без игры.
+"""Конструктор подвески (этап 3): пилоны, своя подвеска, итоги, невесомая, библиотека, CLI, окно — без игры.
 
 Источник — поддельный датамайн test_wtpoligon + самолёт b1 (новая схема, по образцу A-26B) и c1 (старая схема,
 по образцу A-20G). Прогон по настоящему датамайну — при WTP_DATAMINE=<клон> (A-26B: невесомая ФАБ-9000 в отсеке
-даёт EmptyMass 925 кг, как в проверенных кругах 18/31; все штатные пресеты всех самолётов узнаются как штатные).
+даёт EmptyMass 925 кг, как в проверенных/31; все штатные пресеты всех самолётов узнаются как штатные).
 """
 import json
 import os
@@ -19,6 +19,8 @@ from test_wtpoligon import UNITTAGS, Base, make_datamine  # noqa: E402
 from wtpoligon import build as BL  # noqa: E402
 from wtpoligon import install as I  # noqa: E402
 from wtpoligon import loadout as L  # noqa: E402
+from wtpoligon import library  # noqa: E402
+from wtpoligon.support.model import Entry, Support  # noqa: E402
 from wtpoligon.game import blk as B  # noqa: E402
 from wtpoligon.game import index as X  # noqa: E402
 from wtpoligon.game import source as S  # noqa: E402
@@ -140,6 +142,21 @@ class LBase(Base):
 
 
 class TestPylons(LBase):
+    def test_called_custom_plane_uses_own_default_preset(self):
+        lo = L.Loadout(slots={2: {'weapon': BOMB, 'sample': 'bomb_left'}})
+        item = library.save(self.app, 'Мой B-1', self.v('b1'), loadout=lo.to_dict())
+        plan = BL.stock_plan(self.src, self.v('t1'), False, vehicles=self.vehicles,
+                             catalog=self.cat, support=Support([Entry('b1', 'air', 1, item['id'])]),
+                             support_library=library.list_items(self.app))
+        self.assertEqual(BL.verify_plan(self.src, plan), [])
+        cls = 'wtp5_' + item['id']
+        files = dict(plan.files)
+        plane = files['content/pkg_local/gameData/flightModels/' + cls + '.blk']
+        self.assertIn('"@override:preset[1]"', plane)
+        self.assertIn('"@override:fmFile"', plane)
+        self.assertIn('gameData/FlightModels/weaponPresets/' + cls + '_loadout.blk', plane)
+        self.assertIn('content/pkg_local/gameData/flightModels/fm/' + cls + '.blk', files)
+
     def test_read_slots(self):
         p = self.b1
         self.assertEqual(p.scheme, 'slots')
@@ -257,16 +274,17 @@ class TestLoadout(LBase):
         self.assertTrue(any(n.startswith('⚠') for n in plan.notes))
 
     def test_ground_sam_becomes_air_rocket(self):
-        """32-й круг: ЗУР наземного формата (cannon + bullet{rocket}) на пилоне роняет игру, переделанная в
+        """: ЗУР наземного формата (cannon + bullet{rocket}) на пилоне роняет игру, переделанная в
         rocketGun — работает. Программа сама пишет переделку и вешает её (saclos тоже проверено)."""
         lo = L.Loadout(slots={2: {'weapon': SAM9X, 'sample': 'bomb_left'}, 4: {'weapon': SACLOS, 'sample': 'bomb_right'}})
         plan, problems = self.plan('b1', lo)
         self.assertEqual(problems, [])
         files = dict(plan.files)
         air = {p: B.parse_text(t) for p, t in files.items() if '/rocketGuns/' in p}
-        self.assertEqual(sorted(air), ['content/pkg_local/gameData/Weapons/rocketGuns/wtp5_sam_aim9x_air.blk',
-                                       'content/pkg_local/gameData/Weapons/rocketGuns/wtp5_sam_saclos_air.blk'])
-        sac = air['content/pkg_local/gameData/Weapons/rocketGuns/wtp5_sam_saclos_air.blk']
+        aim_path = L.air_copy_path(SAM9X, L.air_rocket_text(self.src, SAM9X))
+        sac_path = L.air_copy_path(SACLOS, L.air_rocket_text(self.src, SACLOS))
+        self.assertEqual(sorted(air), sorted('content/pkg_local/' + p for p in (aim_path, sac_path)))
+        sac = air['content/pkg_local/' + sac_path]
         self.assertEqual((sac.get('rocketGun'), sac.get('cannon'), sac.get('bullets'), sac.get('mesh')),
                          (True, None, 1, 'tpk'))
         # анимированная модель: на пилоне — animChar пусковой, в полёте — shellAnimChar ракеты (верх файла)
@@ -277,7 +295,7 @@ class TestLoadout(LBase):
         blks = {s.get('index'): [w.get('blk') for p in s.blocks if str(p.get('name')).startswith('wtp5_')
                                  for w in p.blocks if w.name == 'Weapon']
                 for s in unit.block('WeaponSlots').blocks if s.get('index') in (2, 4)}
-        self.assertEqual(blks, {2: [L.air_copy_path(SAM9X)], 4: [L.air_copy_path(SACLOS)]})
+        self.assertEqual(blks, {2: [aim_path], 4: [sac_path]})
         sm = L.summarize(self.src, self.b1, lo, self.cat)
         levels = [lvl for lvl, _t in sm.warnings]
         self.assertNotIn('danger', levels)
@@ -285,6 +303,12 @@ class TestLoadout(LBase):
         self.assertFalse([t for lvl, t in sm.warnings if 'может не наводиться' in t])   # saclos проверено (v0.101)
         self.assertFalse(L.is_risky({w['stem']: w for w in self.cat}['sam_saclos']))
         self.assertTrue(L.is_risky({w['stem']: w for w in self.cat}['tank_gun']))
+
+    def test_air_copy_name_depends_on_content(self):
+        first = L.air_copy_path(SAM9X, 'rocketGun:b=yes')
+        second = L.air_copy_path(SAM9X, 'rocketGun:b=no')
+        self.assertNotEqual(first, second)
+        self.assertTrue(first.endswith('.blk'))
 
     def test_weightless(self):
         lo = L.Loadout(slots={3: {'weapon': BIG, 'sample': 'bay_bombs', 'count': 1}}, weightless=True)
@@ -438,7 +462,7 @@ class TestLoadoutWindow(LBase):
         self.assertIsNone(lp.loadout())
         self.assertEqual([p[0] for p in lp.points()], [1, 2, 3, 4, 5])
         self.assertEqual(len(lp.cards), 5)
-        w.go(5)
+        w.go(6)
         self.assertEqual(w.review_page.plan.weapons, 'b1_default')
 
     def test_options_grouped_by_class(self):
@@ -480,7 +504,7 @@ class TestLoadoutWindow(LBase):
         lp.weightless.setChecked(True)
         self.assertIn('1 800 кг', lp.summary_text())                     # 3000 − 1200
         self.assertTrue(lp.save_as('Тест'))
-        w.go(5)
+        w.go(6)
         rp = w.review_page
         self.assertEqual(rp.problems, [])
         self.assertEqual((rp.plan.launch, rp.plan.weapons), (BL.COPY, 'wtp5_loadout'))
@@ -510,7 +534,7 @@ class TestLoadoutWindow(LBase):
         lp.find.setText('big')
         self.assertTrue(lp.choose(lp.options[0].payload))
         self.assertEqual(lp.lo.legacy, {2: BIG})
-        w.go(5)
+        w.go(6)
         self.assertEqual(w.review_page.problems, [])
 
     def test_catalog_loads_in_background(self):
@@ -562,7 +586,7 @@ class TestLoadoutWindow(LBase):
         self.assertIn('⚠', card.title + card.toolTip())
         lp.choose(card.payload)
         self.assertIn('упасть', lp.alerts.text())
-        w.go(5)
+        w.go(6)
         asked = []
         w.confirm = lambda title, text: asked.append(text) or False
         self.assertFalse(w.review_page.write())
@@ -665,7 +689,7 @@ class TestLoadoutDatamine(unittest.TestCase):
 
     def test_custom_builds_for_all_legacy_aircraft(self):
         """Каждая машина старой схемы: первый пресет со списком Weapon, на точке 1 — то же оружие (замена blk,
-        как A-20G в 19-м круге). Сборка и модель правок — 0 ошибок."""
+        как A-20G в). Сборка и модель правок — 0 ошибок."""
         errors, n = [], 0
         for v in self.vehicles:
             if v['kind'] not in ('air', 'heli'):

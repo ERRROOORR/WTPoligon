@@ -22,10 +22,14 @@ from .loadout_page import LoadoutPage
 from .stats_page import StatsPage
 from .scenario_page import ScenarioPage
 from .ammo_page import AmmoPage
+from .support_page import SupportPage
+from .. import library as LIB
+from ..support.model import Support
 from .vehicle_page import VehiclePage
 from . import workers
+from ..applog import LOG
 
-STEP_REVIEW = 5
+STEP_REVIEW = 6
 
 
 def _label(text, name=None, wrap=True):
@@ -57,6 +61,19 @@ class ReviewPage(QWidget):
         row.addWidget(self.undo_btn)
         row.addWidget(self.target, 1)
         lay.addLayout(row)
+        saved = QHBoxLayout()
+        self.save_library_btn = QPushButton('Сохранить как свою технику')
+        self.open_library_btn = QPushButton('Открыть свою технику')
+        self.save_library_btn.clicked.connect(self.save_library)
+        self.open_library_btn.clicked.connect(self.open_library)
+        saved.addWidget(self.save_library_btn)
+        saved.addWidget(self.open_library_btn)
+        saved.addStretch()
+        lay.addLayout(saved)
+        self.library_box = QWidget()
+        self.library_layout = QVBoxLayout(self.library_box)
+        self.library_layout.setContentsMargins(0, 0, 0, 0)
+        lay.addWidget(self.library_box)
         self.result = _label('')
         lay.addWidget(self.result)
 
@@ -87,6 +104,7 @@ class ReviewPage(QWidget):
 
     def rebuild(self):
         """Собрать план под текущий выбор и проверить моделью правок."""
+        self.refresh_library()
         self._generation += 1
         if len(self.win.vehicles) >= 100:
             self._future = None
@@ -107,10 +125,14 @@ class ReviewPage(QWidget):
                 self.plan = BL.stock_plan(self.win.source, v, in_hangar, scenario=sc, loadout=lo,
                                           catalog=lp.ensure_catalog() if lo is not None else None,
                                           stats=self.win.stats_page.model, vehicles=self.win.vehicles,
-                                          ammo=self.win.ammo_page.ammo())
+                                          ammo=self.win.ammo_page.ammo(), support=self.win.support_page.support(),
+                                          support_library=LIB.list_items(self.win.root))
                 self.problems = BL.verify_plan(self.win.source, self.plan)
             except Exception as e:  # noqa: BLE001 — показать сбой, а не уронить окно
+                LOG.exception('Сбой сборки (%s)', v.get('name'))
                 self.plan, self.problems = None, ['сбой сборки: %s: %s' % (type(e).__name__, e)]
+            if self.problems:
+                LOG.warning('Проверка (%s): %s', v['name'], '; '.join(self.problems))
         self.summary.setHtml(self.summary_html())
         self.refresh_status()
 
@@ -140,7 +162,8 @@ class ReviewPage(QWidget):
             self._future = workers.pool().submit(
                 workers.review, self.win.source.kind, self.win.source.root, v,
                 bool(H.status(self.win.marks, v['name'])), sc, lo, catalog, stats, self.win.vehicles,
-                self.win.ammo_page.ammo())
+                self.win.ammo_page.ammo(), self.win.support_page.support(),
+                LIB.list_items(self.win.root))
             QTimer.singleShot(30, lambda: self._rebuild_async(generation))
             return
         if not self._future.done():
@@ -148,8 +171,11 @@ class ReviewPage(QWidget):
             return
         try:
             self.plan, self.problems = self._future.result()
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 — показать сбой, а не уронить окно
+            LOG.exception('Сбой сборки (%s)', (self.win.vehicle or {}).get('name'))
             self.plan, self.problems = None, ['сбой сборки: %s: %s' % (type(exc).__name__, exc)]
+        if self.problems:
+            LOG.warning('Проверка (%s): %s', (self.win.vehicle or {}).get('name'), '; '.join(self.problems))
         self._future = None
         self.summary.setHtml(self.summary_html())
         self.refresh_status()
@@ -170,6 +196,7 @@ class ReviewPage(QWidget):
             try:
                 path = future.result()
             except Exception as e:  # noqa: BLE001 — показать, а не уронить окно
+                LOG.exception('Не удалось собрать логи')
                 self.result.setText('Не удалось собрать логи: %s' % e)
                 return
             self.result.setText('Логи собраны: %s' % path)
@@ -177,6 +204,83 @@ class ReviewPage(QWidget):
             from PySide6.QtGui import QDesktopServices
             QDesktopServices.openUrl(QUrl.fromLocalFile(os.path.dirname(path)))
         QTimer.singleShot(100, poll)
+
+    def save_library(self):
+        from PySide6.QtWidgets import QInputDialog
+        v = self.win.vehicle
+        if v is None:
+            return
+        name, ok = QInputDialog.getText(self, 'Сохранить как свою технику', 'Имя своей техники:')
+        if not ok:
+            return
+        stats = self.win.stats_page.model
+        stat_data = ({'values': [[f, p, value] for (f, p), value in stats.values.items()],
+                      'title': stats.title, 'mission_title': stats.mission_title} if stats else None)
+        try:
+            LIB.save(self.win.root, name, v,
+                     loadout=self.win.loadout_page.loadout().to_dict() if self.win.has_loadout() and
+                     self.win.loadout_page.loadout() else None,
+                     stats=stat_data, ammo=self.win.ammo_page.ammo().to_dict() if self.win.ammo_page.ammo() else None,
+                     scenario=self.win.scenario_page.scenario().to_dict(),
+                     support=self.win.support_page.support().to_dict())
+        except Exception as exc:  # noqa: BLE001 — показать, а не уронить окно
+            LOG.exception('Не удалось сохранить свою технику «%s»', name)
+            self.result.setText(str(exc))
+            return
+        LOG.info('Своя техника сохранена: «%s» (%s)', name, v.get('name'))
+        self.win.vehicles_page.refresh()
+        self.refresh_library()
+        self.result.setText('Сохранено: ' + name)
+
+    def open_library(self):
+        from PySide6.QtWidgets import QInputDialog
+        items = LIB.list_items(self.win.root)
+        if not items:
+            return
+        names = [x['name'] for x in items]
+        name, ok = QInputDialog.getItem(self, 'Открыть свою технику', 'Моя техника:', names, 0, False)
+        if ok:
+            self.win.open_library(items[names.index(name)]['id'])
+
+    def refresh_library(self):
+        from PySide6.QtWidgets import QInputDialog
+        while self.library_layout.count():
+            item = self.library_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+        self.library_layout.addWidget(QLabel('Моя техника'))
+        for saved in LIB.list_items(self.win.root):
+            row = QWidget()
+            line = QHBoxLayout(row)
+            line.setContentsMargins(0, 0, 0, 0)
+            line.addWidget(QLabel(saved['name']), 1)
+            opening = QPushButton('Открыть')
+            opening.clicked.connect(lambda _=False, item_id=saved['id']: self.win.open_library(item_id))
+            line.addWidget(opening)
+            rename = QPushButton('Переименовать')
+
+            def do_rename(_=False, data=saved):
+                name, ok = QInputDialog.getText(self, 'Переименовать', 'Новое имя:', text=data['name'])
+                if ok:
+                    LIB.save(self.win.root, name, self.win.vehicles_page.vehicles_by_name(data['vehicle']),
+                             loadout=data.get('loadout'), stats=data.get('stats'), ammo=data.get('ammo'),
+                             scenario=data.get('scenario'), support=data.get('support'), item_id=data['id'])
+                    self.win.vehicles_page.refresh()
+                    self.refresh_library()
+
+            rename.clicked.connect(do_rename)
+            line.addWidget(rename)
+            delete = QPushButton('Удалить')
+
+            def do_delete(_=False, item_id=saved['id']):
+                if self.win.confirm('Удалить', 'Удалить сохранённую технику?'):
+                    LIB.delete(self.win.root, item_id)
+                    self.win.vehicles_page.refresh()
+                    self.refresh_library()
+
+            delete.clicked.connect(do_delete)
+            line.addWidget(delete)
+            self.library_layout.addWidget(row)
 
     def summary_html(self):
         e = html.escape
@@ -207,12 +311,16 @@ class ReviewPage(QWidget):
         if p.ammo is not None and p.ammo.changed():
             out.append('<p>Боеприпасы: %d ячеек, %d добавленных снарядов, %d правок.</p>' % (
                 sum(bool(s.shell) for s in p.ammo.slots), len(p.ammo.added), len(p.ammo.edits)))
+        if p.support is not None and p.support.entries:
+            out.append('<p>Вызываемые единицы: %s</p>' % e(', '.join(
+                '%s × %d' % (entry.vehicle, entry.count) for entry in p.support.entries)))
         if p.scenario and not p.problems:
             out.append('<p>%s</p>' % '<br>'.join(e(s) for s in (SBD.describe(p.scenario) if isinstance(p.scenario, NewScenario) else T.describe(p.scenario))))
         if p.notes:
             out.append('<ul>%s</ul>' % ''.join('<li>%s</li>' % e(n) for n in p.notes))
         out.append('<p><b>Будет записано (%d):</b></p><ul>%s</ul>' % (
-            len(p.files), ''.join('<li><code>%s</code> — %d строк</li>' % (e(r), t.count('\n')) for r, t in p.files)))
+            len(p.files), ''.join('<li><code>%s</code> — %s</li>' % (e(r), '%d строк' % t.count('\n') if isinstance(
+                t, str) else '%.1f МБ' % (len(t) / 1048576)) for r, t in p.files)))
         return ''.join(out)
 
     def refresh_status(self):
@@ -249,8 +357,17 @@ class ReviewPage(QWidget):
         meta = {'unit': p.vehicle['name'], 'launch': p.launch, 'mission': p.mission,
                 'game_dir': os.path.abspath(self.win.target_dir), 'source': self.win.source.describe(),
                 'scenario': p.scenario.to_dict(), 'loadout': p.loadout.to_dict() if p.loadout else None,
-                'ammo': p.ammo.to_dict() if p.ammo else None}
-        ok, report = I.install(self.win.target_dir, self.win.root, p.app_id, p.files, meta)
+                'ammo': p.ammo.to_dict() if p.ammo else None,
+                'support': p.support.to_dict() if p.support else None}
+        try:
+            ok, report = I.install(self.win.target_dir, self.win.root, p.app_id, p.files, meta)
+        except Exception as exc:  # noqa: BLE001 — показать, а не уронить окно
+            LOG.exception('Сбой записи %s', p.app_id)
+            ok, report = False, ['%s: %s' % (type(exc).__name__, exc)]
+        if ok:
+            LOG.info('Записано %s: %d файлов', p.app_id, len(p.files))
+        else:
+            LOG.error('Не записано %s: %s', p.app_id, '; '.join(report))
         title = p.vehicle['ru'] or p.vehicle['en'] or p.vehicle['name']
         if ok:
             self.result.setText('<span style="color:#7bc96f">Готово. В игре: Одиночные миссии → Пользовательские → '
@@ -271,6 +388,7 @@ class ReviewPage(QWidget):
         for app_id in app_ids:
             game = apps[app_id].get('game_dir') or self.win.target_dir or ''
             lines += I.uninstall(game, self.win.root, app_id)
+        LOG.info('Откат %s: %s', ', '.join(app_ids), '; '.join(lines))
         self.result.setText('Откат: %s' % html.escape('; '.join(lines) or 'готово'))
         self.refresh_status()
         return True
@@ -314,9 +432,10 @@ class MainWindow(QMainWindow):
         self.loadout_page = LoadoutPage(self)
         self.stats_page = StatsPage(self)
         self.ammo_page = AmmoPage(self)
+        self.support_page = SupportPage(self)
         self.scenario_page = ScenarioPage(self)
         self.review_page = ReviewPage(self)
-        for page in (self.vehicles_page, self.loadout_page, self.stats_page, self.ammo_page,
+        for page in (self.vehicles_page, self.loadout_page, self.stats_page, self.ammo_page, self.support_page,
                      self.scenario_page, self.review_page):
             self.stack.addWidget(page)
         lay.addWidget(self.stack, 1)
@@ -368,7 +487,7 @@ class MainWindow(QMainWindow):
         self.step = step
         if step in self._dirty_pages:
             page = {self.STEP_LOADOUT: self.loadout_page, 2: self.stats_page,
-                    3: self.ammo_page, 4: self.scenario_page}.get(step)
+                    3: self.ammo_page, 4: self.support_page, 5: self.scenario_page}.get(step)
             if page is not None:
                 page.set_vehicle(self.vehicle)
             self._dirty_pages.discard(step)
@@ -400,10 +519,11 @@ class MainWindow(QMainWindow):
             self.loadout_page.set_vehicle(v)
             self.stats_page.set_vehicle(v)
             self.ammo_page.set_vehicle(v)
+            self.support_page.set_vehicle(v)
             self.scenario_page.set_vehicle(v)
             self._update_nav()
             return
-        self._dirty_pages.update((self.STEP_LOADOUT, 2, 3, 4))
+        self._dirty_pages.update((self.STEP_LOADOUT, 2, 3, 4, 5))
         if self.step == self.STEP_LOADOUT:
             self.loadout_page.set_vehicle(v)
             self._dirty_pages.discard(self.STEP_LOADOUT)
@@ -413,11 +533,49 @@ class MainWindow(QMainWindow):
         if self.step == 3:
             self.ammo_page.set_vehicle(v)
             self._dirty_pages.discard(3)
-        self.scenario_page.set_vehicle(v)
+        self.support_page.set_vehicle(v)
         self._dirty_pages.discard(4)
+        self.scenario_page.set_vehicle(v)
+        self._dirty_pages.discard(5)
         if self.step == self.STEP_LOADOUT and not self.has_loadout():
             self.go(0)
         self._update_nav()
+
+    def open_library(self, item_id):
+        data = LIB.get(self.root, item_id)
+        if not self.vehicles_page.select(data['vehicle']):
+            return False
+        self.go(0)
+
+        def restore():
+            lp, ap, sp = self.loadout_page, self.ammo_page, self.stats_page
+            pending = (lp._setup_future is not None and not lp._setup_future.done() or
+                       ap._future is not None and not ap._future.done() or
+                       sp.loader is not None and sp.loader.isRunning() or
+                       self.scenario_page._pending is not None and not self.scenario_page._pending.done())
+            if pending:
+                QTimer.singleShot(50, restore)
+                return
+            if data.get('loadout') and lp.lo is not None:
+                lp.lo = L.Loadout.from_dict(data['loadout'])
+                lp._changed()
+            if data.get('stats') and sp.model:
+                sd = data['stats']
+                sp.model.values = {(f, p): val for f, p, val in sd.get('values', [])}
+                sp.model.title = sd.get('title', '')
+                sp.model.mission_title = sd.get('mission_title', '')
+                sp.show_section()
+            if data.get('ammo'):
+                from ..ammo.model import Ammo
+                ap.model = Ammo.from_dict(data['ammo'])
+                ap.render()
+            if data.get('scenario'):
+                self.scenario_page.load(data['scenario'])
+            if data.get('support'):
+                self.support_page.model = Support.from_dict(data['support'])
+                self.support_page.render()
+        QTimer.singleShot(50, restore)
+        return True
 
     def help_text(self, step=None):
         return TX.HELP[self.step if step is None else step]

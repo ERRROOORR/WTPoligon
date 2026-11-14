@@ -2,9 +2,9 @@
 
 Общие для программы и генератора тестов tools/make_test_missions.py (там — проверенные в игре варианты):
   - танки-мишени — как стоковый тест-драйв testflight_era_tft.blk на firing_range: tankModels армии 2, при старте
-    attack_type "dont_aim" (не стреляют), уничтоженную через 5 с восстановить (12-й круг и далее, подтверждено);
+    attack_type "dont_aim" (не стреляют), уничтоженную через 5 с восстановить;
   - воздушная цель — как flight_target* в test_flight_unit_template.blk: armada армии 2, cannotShoot, маршрут
-    unitSetRoute к точке старта игрока (26-й круг); РЛС бота включается use_search_radar + useSearchRadar (30-й).
+    unitSetRoute к точке старта игрока; РЛС бота включается use_search_radar + useSearchRadar (30-й).
 Сценарий программы (Scenario) — выбор пользователя: точка появления, набор/дистанция мишеней, воздушная цель.
 """
 import math
@@ -234,7 +234,7 @@ def air_parts(name, unit_class, start, end, speed, radar=False, respawn=False):
         [B.Block('props', [('army', 'i', 2), ('count', 'i', 1), ('free_distance', 'r', 70.0),
                            ('floating_distance', 'r', 50.0), ('minimum_distance_to_earth', 'r', 20.0),
                            ('altLimit', 'r', 16000.0),
-                           # 30-й круг: РЛС включена, как бот F-15C в aircraft_countermeasures_chaff_sky.blk
+                           #: РЛС включена, как бот F-15C в aircraft_countermeasures_chaff_sky.blk
                            ('attack_type', 't', 'fire_at_will' if radar else 'dont_aim'),
                            ('skill', 'i', 4)] + ([('use_search_radar', 'b', True)] if radar else [])
                  + [('speed', 'r', speed)],

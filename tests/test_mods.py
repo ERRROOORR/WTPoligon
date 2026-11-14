@@ -1,4 +1,4 @@
-"""Перенос модификаций в копию (tools/wtlib/mods.py, docs/research/modifications.md)."""
+"""Перенос модификаций в копию (tools/wtlib/mods.py,."""
 import os
 import sys
 import unittest

@@ -502,7 +502,7 @@ def _parse_into(lx, blk, top):
 # ---------------------------------------------------------------- применение правок (@override и др.)
 #
 # Повторяет DataBlockParser::parse из DagorEngine (prog/engine/ioSys/dataBlock/blk_parser.cpp), см.
-# docs/research/override_format.md. Нужен, чтобы до записи в игру посчитать итоговую машину и заранее увидеть
+# Нужен, чтобы до записи в игру посчитать итоговую машину и заранее увидеть
 # каждую ошибку, которую игра напишет в лог.
 
 class ApplyFatal(Exception):

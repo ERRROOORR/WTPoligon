@@ -3,6 +3,7 @@ import os
 import json
 import tempfile
 import unittest
+from types import SimpleNamespace
 
 from wtpoligon import stats as S
 from wtpoligon import build as BL
@@ -59,6 +60,48 @@ class TestStats(unittest.TestCase):
         self.assertNotIn('Аэродинамика', self.model.sections())
         no_radar = Source({UNIT: 'fmFile:t="fm/example.blk"', FM: 'Mass{EmptyMass:r=1000}'})
         self.assertNotIn('РЛС', S.Stats(no_radar, self.vehicle).sections())
+
+    def test_reload_gun_copy_and_vehicle_frequency(self):
+        gun = 'gameData/Weapons/groundModels_weapons/example.blk'
+        source = Source({UNIT: 'commonWeapons{Weapon{blk:t="' + gun + '"\n shotFreq:r=0.2}}',
+                         gun: 'shotFreq:r=0.2\n bullet{mass:r=1}'})
+        vehicle = dict(self.vehicle, kind='tank')
+        model = S.Stats(source, vehicle)
+        p, = model.for_section('Перезарядка')
+        self.assertEqual(p.status, 'проверено в игре')
+        self.assertEqual(model.reload_value(p), 5)
+        model.set_reload(p, 0.01)
+        self.assertEqual(model.value(p), 100)
+        with self.assertRaises(ValueError):
+            model.set_reload(p, 0.009)
+        plan = SimpleNamespace(unit_class='wtp5_example', files=[])
+        extra, problems = BL.stats_files(source, model, plan, '', None, None, None)
+        self.assertEqual(problems, [])
+        self.assertIn('"@override:shotFreq":r=100.0', plan.files[0][1])
+        self.assertIn('"@override:shotFreq":r=100.0', extra)
+        self.assertIn('wtp5_example__example.blk', extra)
+        model.reset('Перезарядка')
+        self.assertFalse(model.edits())
+
+    def test_air_rate_and_rocket_exclusion(self):
+        gun = 'gameData/Weapons/cannon.blk'
+        rocket = 'gameData/Weapons/rocket.blk'
+        source = Source({UNIT: '''WeaponSlots{WeaponSlot{index:i=0
+            WeaponPreset{name:t="common"
+              Weapon{trigger:t="cannon" blk:t="gameData/Weapons/cannon.blk"}
+              Weapon{trigger:t="rockets" blk:t="gameData/Weapons/rocket.blk"}}}}''',
+                         gun: 'shotFreq:r=100\n bullet{mass:r=1}',
+                         rocket: 'shotFreq:r=20\n bullet{rocket{mass:r=1}}'})
+        model = S.Stats(source, self.vehicle)
+        p, = model.for_section('Перезарядка')
+        self.assertEqual(model.reload_value(p), 6000)
+        model.set_reload(p, 12000)
+        self.assertEqual(model.value(p), 200)
+        plan = SimpleNamespace(unit_class='wtp5_example', files=[])
+        extra, problems = BL.stats_files(source, model, plan, '', None, None, None)
+        self.assertEqual(problems, [])
+        self.assertIn('"@override:shotFreq":r=200.0', plan.files[0][1])
+        self.assertIn('wtp5_example__cannon.blk', extra)
 
     def test_general_and_tree_share_values(self):
         self.assertEqual(self.model.general('Двигатель'), 300)

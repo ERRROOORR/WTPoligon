@@ -161,10 +161,7 @@ def mission_parts(scenario, source=None):
                     # Источник: исходники/missions.py M._setup: unitSetIndication.
                     init.append(B.Block('unitSetIndication', [('set', 'b', True), ('target', 't', name)]))
                 if scenario.rules.restore_targets:
-                    trigger = _restore_trigger(name)
-                    if scenario.rules.restore_ammo:
-                        trigger.block('actions').blocks.append(_ammo_restore())
-                    triggers.append(trigger)
+                    triggers.append(_restore_trigger(name))
             else:
                 air_i += 1
                 i, name = air_i, 'air_%02d' % air_i
@@ -201,19 +198,21 @@ def mission_parts(scenario, source=None):
                 if key == 'duel':
                     weapons = _duel_weapons(source, cls, scenario.duel.loadout)
                     u[0].params = [(k, typ, weapons if k == 'weapons' else val) for k, typ, val in u[0].params]
-                if scenario.rules.restore_ammo:
-                    for trig in t:
-                        trig.block('actions').blocks.append(_ammo_restore())
                 units += u
                 init += a
                 triggers += t
                 ways += w
     c, r = scenario.conditions, scenario.rules
+    if r.restore_ammo:
+        # Самостоятельное пополнение: работает и без мишеней, и при отключённом их возрождении.
+        triggers.append(_trigger('player_ammo_restore', True,
+                                 [B.Block('periodicEvent', [('time', 'r', 10.0)])], [],
+                                 [_ammo_restore()], True))
     # Источник: исходники/missions.py M.build: environment/weather/difficulty/isLimitedFuel.
     config.update(extra_units=units, init_actions=init, extra_triggers=triggers, way_points=ways,
                   environment=TIMES.get(c.time, c.time), weather=WEATHER.get(c.weather, c.weather),
                   difficulty=DIFFICULTIES.get(c.difficulty, c.difficulty), infinite_fuel=r.infinite_fuel,
-                  player_respawn=r.player_respawn, rapid_reload=r.rapid_reload)
+                  player_respawn=r.player_respawn)
     return config
 
 

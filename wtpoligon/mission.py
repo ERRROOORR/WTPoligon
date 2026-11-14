@@ -24,10 +24,10 @@ SPAWNS = {
     # вертолёт — как универсальный тест-полёт игры test_flight_universal_denmark (mislist: test_flights_universal):
     # та же карта, что у самолёта; в миссии стоит объект «динамический аэродром» airfield_high, вертолёт ставится
     # на него spawnOnAirfield{runwayName:t="airfield_high"} (test_flight_template.blk: airfield_spawn = "airfield_" +
-    # "high" для type_*_helicopter). История: без своего триггера игра возрождает вертолёт в воздухе (круг 1);
-    # полоса Моздока из testflight_mozdok_heli — «неизвестный аэродром» без addAirfield (круг 2), у деревьев (круг 3)
+    # "high" для type_*_helicopter). История: без своего триггера игра возрождает вертолёт в воздухе;
+    # полоса Моздока из testflight_mozdok_heli — «неизвестный аэродром» без addAirfield, у деревьев
     'denmark_heli_airfield': ('levels/air_denmark.bin', (23020.8, 31.574, 1600.45), 0.0),
-    # 15-й круг: самолёт над мишенями firing_range (стоковый testflight_era_tft держит там самолёты-мишени на 400 м)
+    #: самолёт над мишенями firing_range (стоковый testflight_era_tft держит там самолёты-мишени на 400 м)
     # — 1,2 км до линии мишеней, ~700 м над землёй; и низко над водой avn_fiji (точка корабля) — для торпеды
     'firing_range_air': ('levels/firing_range.bin', (1000.0, 900.0, 2350.0), 350.0),
     'avn_fiji_air': ('levels/avn_fiji.bin', (5524.64, 60.0, 3832.36), 300.0),
@@ -58,7 +58,7 @@ def _restore(target, resurrect):
 
 
 def mission_text(*, name, loc_name, loc_desc, kind, spawn, mtype, unit_class, weapons='', bullets=(),
-                 modifications=(), extra_units=(), init_actions=(), extra_triggers=(), way_points=(),
+                 modifications=(), extra_units=(), init_actions=(), extra_triggers=(), way_points=(), extra_areas=(),
                  player_turn=None, header='// WT Poligon 5: тестовая миссия (launch.md §6)\n',
                  level=None, player_pos=None, player_speed=None, environment='Day', weather='good',
                  difficulty='', infinite_fuel=True, player_respawn=True, rapid_reload=0):
@@ -116,7 +116,7 @@ def mission_text(*, name, loc_name, loc_desc, kind, spawn, mtype, unit_class, we
     params = [('name', 't', 'player'), ('tm', 'm', _tm(pos, turn=player_turn)), ('unit_class', 't', unit_class),
               ('objLayer', 'i', 1), ('closed_waypoints', 'b', False), ('isShipSpline', 'b', False),
               ('shipTurnRadius', 'r', 100.0), ('weapons', 't', weapons)]
-    # 11-й круг: снаряд выбирает миссия — bulletsN = имя блока снаряда в файле орудия (как в 246 стоковых миссиях,
+    # снаряд выбирает миссия — bulletsN = имя блока снаряда в файле орудия (как в 246 стоковых миссиях,
     # weapons_survey.md), bulletsCountN — количество. Без bullets — пусто (штатный снаряд)
     chosen = list(bullets) + [('', 0)] * 4
     for i in range(4):
@@ -164,7 +164,7 @@ def mission_text(*, name, loc_name, loc_desc, kind, spawn, mtype, unit_class, we
         B.Block('variables'), B.Block('dialogs'), B.Block('airfields'), B.Block('effects'),
         B.Block('units', blocks=[player] + units + list(extra_units)),
         B.Block('areas', blocks=[B.Block('player_spawn', [('type', 't', 'Sphere'), ('tm', 'm', _tm(pos, 10.0, player_turn)),
-                                                          ('objLayer', 'i', 0)], [B.Block('props')])]),
+                                                          ('objLayer', 'i', 0)], [B.Block('props')])] + list(extra_areas)),
         B.Block('objLayers', blocks=[B.Block('layer', [('enabled', 'b', True)]) for _ in range(4)]),
         B.Block('wayPoints', blocks=list(way_points))])
     return header + B.to_text(root)

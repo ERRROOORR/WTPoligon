@@ -1,4 +1,4 @@
-"""Обзор всей техники игры для исследования запуска (docs/research/launch.md).
+"""Обзор всей техники игры для исследования запуска.
 
 Источники: char.vromfs.bin (unittags, wpcost, shop), aces.vromfs.bin (файлы юнитов).
 Выход: cache/units.json (по юниту) и сводка в stdout.

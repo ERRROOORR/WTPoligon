@@ -23,4 +23,12 @@ The reference describes findings from the examined game version and labels each 
 - [Modifications](modifications.md) and [localization](localization.md).
 - [Failures and disproved approaches](failures.md).
 
+## Gameplay mechanics
+
+- [Nuclear warheads](nuclear.md)
+- [Called-in vehicles: drones and support units](support.md)
+- [Reload and ammunition restore](reload-restore.md)
+- [Map borders and level copies](map-borders.md)
+- [Composite aircraft (Mistel)](bomb-planes.md)
+
 The [program overview](../program/overview.md) explains how these findings are used when building a mission.

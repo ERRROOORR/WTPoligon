@@ -215,7 +215,7 @@ class TestBuild(Base):
         self.assertEqual(BL.verify_plan(self.src, plan), [])
         res = B.resolve_file(files[copy], self.src.loader(), [])
         guns = [w.get('blk') for w in res.block('commonWeapons').blocks]
-        self.assertEqual(guns, [GUN, 'gameData/Weapons/smoke.blk'])       # дымы перенесены (8-й круг)
+        self.assertEqual(guns, [GUN, 'gameData/Weapons/smoke.blk'])       # дымы перенесены
         self.assertEqual([p.get('class') for p in res.block('supportPlanes').blocks],
                          ['tankModels/wtp5_t1__t1_launcher'] * 2)
         self.assertTrue(any('tool_kit' in n for n in plan.notes))         # потеря — показана
@@ -275,11 +275,15 @@ class TestInstall(Base):
         self.assertEqual(I.check_paths(ok), [])
         for rel in ('content/pkg_local/gameData/units/tankModels/us_m2a4.blk',
                     'content/pkg_local/gameData/units/tankModels/userVehicles/us_m2a4.blk',
-                    'content/pkg_local/levels/wtp5_x.blk', 'UserMissions/Ask3lad/wtp5_x.blk',
+                    'content/pkg_local/levels/Ask3lad_Testdrive.blk', 'content/pkg_local/levels/sub/wtp5_x.blk',
+                    'UserMissions/Ask3lad/wtp5_x.blk',
                     'UserMissions/WTPoligon5/other.blk', 'UserMissions/WTPoligon5/sub/wtp5_x.blk',
                     'content/pkg_local/gameData/../config.blk', '/etc/wtp5_x.blk', 'C:/wtp5_x.blk', 'config.blk',
                     'content\\pkg_local\\gameData\\wtp5_x.blk'):
             self.assertTrue(I.check_paths([(rel, '')]), rel)
+        # своя копия уровня без зоны возврата — можно
+        self.assertEqual(I.check_paths([('content/pkg_local/levels/wtp5_firing_range.blk', ''),
+                                        ('content/pkg_local/levels/wtp5_firing_range.bin', b'')]), [])
         self.assertTrue(I.check_paths(ok + ok[:1]))
 
     def test_install_reinstall_uninstall(self):
@@ -326,11 +330,34 @@ class TestInstall(Base):
         self.assertTrue(os.path.exists(full))                             # изменённый после записи — оставлен
         self.assertTrue(any('изменён' in s for s in report))
 
-    def test_other_application_file_refused(self):
+    def test_shared_file_survives_until_last_owner(self):
         self.assertTrue(I.install(self.game, self.app, 't1', self.files())[0])
         ok, report = I.install(self.game, self.app, 'other', self.files()[:1])
+        self.assertTrue(ok, report)
+        rel = self.files()[0][0]
+        self.assertIn(rel, I.installed(self.app)['t1']['files'])
+        self.assertIn(rel, I.installed(self.app)['other']['files'])
+        I.uninstall(self.game, self.app, 't1')
+        self.assertTrue(os.path.isfile(os.path.join(self.game, rel)))
+        I.uninstall(self.game, self.app, 'other')
+        self.assertFalse(os.path.exists(os.path.join(self.game, rel)))
+
+    def test_shared_file_different_content_refused_before_write(self):
+        rel, text = self.files()[0]
+        self.assertTrue(I.install(self.game, self.app, 't1', [(rel, text)])[0])
+        ok, report = I.install(self.game, self.app, 'other', [(rel, text + '\nchanged')])
         self.assertFalse(ok)
-        self.assertTrue(any('применением t1' in s for s in report))
+        self.assertIn('другому применению', ' '.join(report))
+        self.assertNotIn('other', I.installed(self.app))
+
+    def test_reinstall_releases_shared_file(self):
+        rel, text = self.files()[0]
+        self.assertTrue(I.install(self.game, self.app, 't1', [(rel, text)])[0])
+        self.assertTrue(I.install(self.game, self.app, 'other', [(rel, text)])[0])
+        self.assertTrue(I.install(self.game, self.app, 't1', [])[0])
+        self.assertTrue(os.path.isfile(os.path.join(self.game, rel)))
+        I.uninstall(self.game, self.app, 'other')
+        self.assertFalse(os.path.exists(os.path.join(self.game, rel)))
 
     def test_dry_run_writes_nothing(self):
         ok, _ = I.install(self.game, self.app, 't1', self.files(), dry_run=True)
@@ -404,7 +431,10 @@ class TestTargets(Base):
 
     def test_generator_uses_same_targets(self):
         sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
-        import make_test_missions as G
+        try:
+            import make_test_missions as G
+        except ImportError:  # открытый репозиторий: без генератора тестов
+            self.skipTest('нет tools/make_test_missions.py')
         self.assertIs(G.TARGETS, T.TARGETS)
         # над полигоном — проверенные точки генератора; на земле — зоны тест-драйва, куда шаблон переносит мишени
         self.assertEqual(T.ground_targets('soviet', spawn='firing_range_air'), T.TARGETS)

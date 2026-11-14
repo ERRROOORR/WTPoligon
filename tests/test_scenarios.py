@@ -24,6 +24,10 @@ class TestScenarioModel(unittest.TestCase):
         self.assertEqual(old.mode, 'air')
         self.assertEqual(old.categories['air'].targets[0].vehicle, 'mig_23m')
         self.assertTrue(old.categories['air'].radar)
+        saved = scenario.to_dict()
+        saved['rules']['rapid_reload'] = 8
+        self.assertEqual(Scenario.from_dict(saved), scenario)
+        self.assertNotIn('rapid_reload', Scenario.from_dict(saved).to_dict()['rules'])
 
     def test_seed_range_refill_and_multiplicity(self):
         vehicles = [{'name': 'player', 'kind': 'air', 'type': 'type_fighter', 'br': 5.0}]
@@ -67,14 +71,13 @@ class TestScenarioBuild(Base):
         scenario.duel.enemy = 'a1'
         scenario.duel.count = 2
         scenario.conditions.time = 'Night'
-        scenario.rules.rapid_reload = 8
         scenario.rules.infinite_fuel = False
         plan = BL.stock_plan(self.src, self.v('a1'), False, scenario=scenario)
         self.assertEqual(BL.verify_plan(self.src, plan), [])
         root = B.parse_text(dict(plan.files)[plan.mission_path])
         self.assertEqual(root.block('mission_settings').block('mission').get('environment'), 'Night')
         self.assertTrue(root.block('mission_settings').block('mission').get('isLimitedFuel'))
-        self.assertIsNotNone(next((x for x in root.block('triggers').blocks if x.name == 'rapid_fire'), None))
+        self.assertFalse(any(x.name == 'rapid_fire' for x in root.block('triggers').blocks))
         self.assertEqual(len([x for x in root.block('units').blocks if x.get('name', '').startswith('air_')]), 2)
 
     def test_target_rules_change_parts(self):
@@ -99,6 +102,32 @@ class TestScenarioBuild(Base):
         scenario.rules.restore_ammo = False
         parts = SB.mission_parts(scenario, self.src)
         self.assertFalse(any(w.name == 'ship_01_way' for w in parts['way_points']))
+
+    def test_ammo_restore_without_targets_or_respawns(self):
+        scenario = self._empty('ground', 't1')
+        scenario.rules.restore_targets = False
+        parts = SB.mission_parts(scenario, self.src)
+        self.assertEqual(len(parts['extra_triggers']), 1)
+        trigger = parts['extra_triggers'][0]
+        self.assertEqual(trigger.name, 'player_ammo_restore')
+        self.assertEqual(trigger.block('events').blocks[0].name, 'periodicEvent')
+        self.assertEqual(trigger.block('events').blocks[0].get('time'), 10.0)
+        action = trigger.block('actions').blocks[0]
+        self.assertEqual(action.name, 'unitRestore')
+        self.assertEqual([action.get(k) for k in ('target', 'ammoRestore', 'fullRestore', 'ressurectIfDead',
+                                                  'target_marking')], ['player', True, False, False, 0])
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools'))
+        try:
+            import make_test_missions as M
+        except ImportError:  # открытый репозиторий: без генератора тестов
+            self.skipTest('нет tools/make_test_missions.py')
+        case = next(c for c in M.CASES if c['id'] == 't104_r44_ammo_10s')
+        reference = B.parse_text(M.mission(case, M.PREFIX + 'r44_t80_ammo_10s'))
+        reference_trigger = reference.block('triggers').block('r44_ammo_restore')
+        reference_trigger.name = trigger.name
+        self.assertEqual(B.to_text(trigger), B.to_text(reference_trigger))
+        scenario.rules.restore_ammo = False
+        self.assertFalse(SB.mission_parts(scenario, self.src)['extra_triggers'])
 
     def test_cli_scenario_json(self):
         scenario = self._empty('ground', 't1')

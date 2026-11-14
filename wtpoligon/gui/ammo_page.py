@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (QComboBox, QFormLayout, QGridLayout, QGroupBox, Q
                                QLineEdit, QPushButton, QScrollArea, QSpinBox, QTreeWidget,
                                QTreeWidgetItem, QVBoxLayout, QWidget, QInputDialog, QProgressBar, QSizePolicy, QFrame,
                                QListWidget, QListWidgetItem)
+from PySide6.QtWidgets import QCheckBox, QDoubleSpinBox
 
 from ..ammo.model import Ammo, Slot, AirGun
 from ..ammo import catalog as C
@@ -99,15 +100,14 @@ class AmmoPage(QWidget):
             AmmoPage QPushButton#ammoChip { text-align: left; min-height: 42px;
                 padding: 2px 8px; background: #2b2b2f; }
             AmmoPage QPushButton#ammoChip:checked { color: #8cc0f5; background: #12355c; }
-            AmmoPage QPushButton#ammoLink { border: none; color: #a9a9b0;
-                background: transparent; text-align: left; }
             AmmoPage QProgressBar::chunk { background: #78ae57; }
         ''')
         self.render()
 
     def ammo(self):
         if self.model.slots == self._stock_slots and not (self.model.gun or self.model.added or
-                self.model.edits or self.model.air_guns or self.model.capacity != self.model.stock_capacity):
+                self.model.edits or self.model.air_guns or self.model.nuclear or
+                self.model.capacity != self.model.stock_capacity):
             return None
         return self.model
 
@@ -251,7 +251,7 @@ class AmmoPage(QWidget):
                 self.load_lay.addLayout(row)
             self.load_lay.addWidget(self._label('Ловушки показаны отдельно в «Характеристиках».', 'ammoHint'))
         else:
-            self.load_lay.addWidget(self._label('%s · 4 ячейки миссии' % gun_name, 'ammoMuted'))
+            self.load_lay.addWidget(self._label(gun_name, 'ammoMuted'))
             heading = QHBoxLayout()
             for title, stretch in (('#', 0), ('Снаряд', 1), ('Шт.', 0)):
                 label = self._label(title, 'ammoHint')
@@ -302,9 +302,7 @@ class AmmoPage(QWidget):
             cap.addStretch()
             self.load_lay.addLayout(cap)
             self._loaded()
-            self.load_lay.addWidget(self._label('В миссии: bullets0..3 / bulletsCount0..3', 'ammoHint'))
         reset = QPushButton('Сбросить боекомплект')
-        reset.setObjectName('ammoLink')
         reset.clicked.connect(self.reset_loadout)
         self.load_lay.addWidget(reset, 0, Qt.AlignLeft)
         shell_head = QHBoxLayout()
@@ -339,7 +337,6 @@ class AmmoPage(QWidget):
         add.clicked.connect(self.add_shell)
         shell_row.addWidget(add)
         self.shell_lay.addLayout(shell_row)
-        self.shell_lay.addWidget(self._label('Блок боеприпаса от другого орудия копируется целиком.', 'ammoHint'))
         self.edit_lay.addWidget(self._label('Выберите снаряд для просмотра и изменения параметров.', 'ammoHint'))
 
     @staticmethod
@@ -584,7 +581,6 @@ class AmmoPage(QWidget):
         edit_head.addWidget(title, 1)
         edit_head.addWidget(self._label('проверено в игре', 'ammoStatus'))
         self.edit_lay.addLayout(edit_head)
-        self.edit_lay.addWidget(self._label('Редактор выбранного боеприпаса · значения из игры', 'ammoHint'))
         reset_fields = QPushButton('Сбросить поля')
         reset_fields.clicked.connect(lambda: self.reset_fields(key))
         self.edit_lay.addWidget(reset_fields, 0, Qt.AlignLeft)
@@ -598,7 +594,6 @@ class AmmoPage(QWidget):
                   ('Длина сердечника, мм', 'damage/kinetic/lanzOdermattWorkingLength'),
                   ('Диаметр сердечника, мм', 'damageCaliber'),
                   ('Коэффициент Демарра', 'damage/kinetic/demarrePenetrationK'),
-                  ('Ядерная мощность, кт · не проверено', 'yield'),
                   ('Вид взрыва', 'explosionFx'), ('Дальность, м', 'distToLive'),
                   ('Дальность ГСН, м', 'guidance/table0/rangeMax'),
                   ('Тип ГСН', 'guidance/type'), ('Перегрузка, g', 'maxG')]
@@ -625,6 +620,51 @@ class AmmoPage(QWidget):
             field_box.addWidget(self._label('сток: %s' % ('%g' % (stock[1] * scale) if isinstance(stock[1], (int, float)) else str(stock[1])), 'ammoHint'))
             form.addLayout(field_box, row, col)
         self.edit_lay.addLayout(form)
+        if shell.kind != 'torpedo':
+            nuclear_card = QFrame()
+            nuclear_card.setObjectName('card')
+            nuclear_layout = QVBoxLayout(nuclear_card)
+            nuclear_toggle = QCheckBox('Ядерный заряд')
+            nuclear_toggle.setChecked(key in self.model.nuclear)
+            nuclear_layout.addWidget(nuclear_toggle)
+            power_row = QHBoxLayout()
+            power_row.addWidget(QLabel('Мощность · кт'))
+            power = QComboBox()
+            for value in (5, 30, 1200, 1450, 1600):
+                power.addItem('%d кт' % value, float(value))
+            power.addItem('Своё число', None)
+            custom = QDoubleSpinBox()
+            custom.setRange(0.1, 100000)
+            custom.setDecimals(2)
+            custom.setValue(self.model.nuclear.get(key, 5))
+            current = self.model.nuclear.get(key, 5)
+            power.setCurrentIndex(power.findData(float(current)) if float(current) in (5, 30, 1200, 1450, 1600)
+                                  else power.count() - 1)
+            custom.setVisible(power.currentData() is None)
+            power_row.addWidget(power)
+            power_row.addWidget(custom)
+            power_row.addStretch()
+            power_row_widget = QWidget()
+            power_row_widget.setLayout(power_row)
+            nuclear_layout.addWidget(power_row_widget)
+            power_row_widget.setVisible(nuclear_toggle.isChecked())
+            self.edit_lay.addWidget(nuclear_card)
+
+            def set_power():
+                custom.setVisible(power.currentData() is None)
+                if nuclear_toggle.isChecked():
+                    self.model.nuclear[key] = custom.value() if power.currentData() is None else power.currentData()
+
+            def toggle(checked):
+                power_row_widget.setVisible(checked)
+                if checked:
+                    set_power()
+                else:
+                    self.model.nuclear.pop(key, None)
+
+            nuclear_toggle.toggled.connect(toggle)
+            power.currentIndexChanged.connect(set_power)
+            custom.valueChanged.connect(set_power)
         if ammo_block.get('explosiveMass') is not None:
             self.edit_lay.addWidget(QLabel('Тротил-эквивалент: ≈ %.2f кг TNT' %
                                        ballistics.tnt_equivalent(ammo_block, factors)))
@@ -684,9 +724,10 @@ class AmmoPage(QWidget):
         self.show_details()
 
     def filter_tree(self, query):
-        q = query.strip().lower()
+        from ..game import search as S
+        q = query.strip()
         def visit(item):
-            own = q in (item.text(0) + ' ' + item.text(1)).lower()
+            own = S.matches(q, item.text(0), item.text(1))
             children = [visit(item.child(i)) for i in range(item.childCount())]
             visible = not q or own or any(children)
             item.setHidden(not visible)

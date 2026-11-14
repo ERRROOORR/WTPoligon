@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (QCheckBox, QComboBox, QFrame, QHBoxLayout, QLabel
                                QStyle, QStyledItemDelegate, QVBoxLayout, QWidget)
 
 from .. import hangar as H
+from .. import library as LIB
 from ..game import index as X
 from . import texts as TX
 from . import workers
@@ -214,6 +215,9 @@ class HoverCard(QFrame):
 class VehiclePage(QWidget):
     LIMIT = 5000
 
+    def vehicles_by_name(self, name):
+        return X.find(self.vehicles, name)
+
     def __init__(self, win):
         super().__init__()
         self.setObjectName('page')
@@ -353,7 +357,24 @@ class VehiclePage(QWidget):
 
     def refresh(self):
         text = self.find.text().strip()
-        found = X.search(self.vehicles, text, self.kind.currentData() or None, self.country.currentData() or None)
+        saved = []
+        by_name = {v['name']: v for v in self.vehicles}
+        for item in LIB.list_items(self.win.root):
+            base = by_name.get(item['vehicle'])
+            if base:
+                row = dict(base)
+                row['ru'], row['en'], row['_library_id'] = item['name'], '', item['id']
+                saved.append(row)
+        report = (tuple(r['ru'] for r in saved), len(self.vehicles))
+        if report != getattr(self, '_library_report', None):
+            self._library_report = report
+            import logging
+            logging.getLogger('wtpoligon.library').info(
+                'Список техники: %d машин, своя техника %s; без машины в индексе: %s', len(self.vehicles),
+                list(report[0]), [i['name'] + ' (' + i['vehicle'] + ')' for i in LIB.list_items(self.win.root)
+                                  if i['vehicle'] not in by_name])
+        found = X.search(self.vehicles + saved, text, self.kind.currentData() or None,
+                         self.country.currentData() or None)
         if self.rank.currentData():
             found = [v for v in found if v['rank'] == self.rank.currentData()]
         if self.only_hangar.isChecked():
@@ -361,7 +382,7 @@ class VehiclePage(QWidget):
         if not X.norm_text(text):        # без поиска — по алфавиту; с поиском — по совпадению
             found.sort(key=lambda v: title(v).lower())
         self.model.set_rows(found[:self.LIMIT])
-        self.count.setText('Найдено: %d из %d' % (len(found), len(self.vehicles)))
+        self.count.setText('Найдено: %d из %d' % (len(found), len(self.vehicles) + len(saved)))
         if self.selected in self.model.rows:
             self.table.setCurrentIndex(self.model.index(self.model.rows.index(self.selected)))
 
@@ -383,6 +404,9 @@ class VehiclePage(QWidget):
         if not idx.isValid():
             return
         v = self.model.rows[idx.row()]
+        if v.get('_library_id'):
+            QTimer.singleShot(0, lambda item_id=v['_library_id']: self.win.open_library(item_id))
+            return
         if v is self.selected:
             return
         self.selected = v

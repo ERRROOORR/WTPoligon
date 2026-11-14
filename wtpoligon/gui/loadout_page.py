@@ -7,7 +7,7 @@ import os
 
 from PySide6.QtCore import QPoint, QRect, QSize, Qt, QThread, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter, QPen, QPixmap
-from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QFrame, QGridLayout, QHBoxLayout, QInputDialog,
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDoubleSpinBox, QComboBox, QFrame, QGridLayout, QHBoxLayout, QInputDialog,
                                QLabel, QLayout, QLineEdit, QMenu, QProgressBar, QPushButton, QScrollArea, QSizePolicy,
                                QSpinBox, QToolButton, QVBoxLayout, QWidget)
 
@@ -472,6 +472,46 @@ class LoadoutPage(QWidget):
         sl.addLayout(wl)
         self.weightless_info = _label('', 'muted')
         sl.addWidget(self.weightless_info)
+        self.bp_box = QFrame()
+        bl = QVBoxLayout(self.bp_box)
+        bl.setContentsMargins(0, 8, 0, 0)
+        t = _label('Самолёт под подвеской', None, False)
+        t.setStyleSheet('font-weight:600;')
+        bl.addWidget(t)
+        row = QHBoxLayout()
+        row.addWidget(_label('Самолёт:', 'muted', False))
+        self.bp_vehicle = QPushButton('штатный')
+        self.bp_vehicle.clicked.connect(self._bp_pick)
+        row.addWidget(self.bp_vehicle, 1)
+        bl.addLayout(row)
+        bl.addWidget(_label('Боевая часть', 'muted', False))
+        row = QHBoxLayout()
+        self.bp_mass_label = _label('Взрывчатка, кг:', None, False)
+        row.addWidget(self.bp_mass_label)
+        self.bp_mass = QDoubleSpinBox()
+        self.bp_mass.setRange(0, 100000)
+        self.bp_mass.setDecimals(0)
+        self.bp_mass.setSpecialValueText('штатно')
+        row.addWidget(self.bp_mass, 1)
+        bl.addLayout(row)
+        row = QHBoxLayout()
+        self.bp_nuke = QCheckBox('Ядерная')
+        row.addWidget(self.bp_nuke)
+        self.bp_kt = QDoubleSpinBox()
+        self.bp_kt.setRange(0.1, 100000)
+        self.bp_kt.setDecimals(1)
+        self.bp_kt.setValue(300)
+        self.bp_kt.setSuffix(' кт')
+        row.addWidget(self.bp_kt, 1)
+        bl.addLayout(row)
+        self.bp_warn = _label('⚠ урон ядерный, взрыв выглядит обычным', 'muted')
+        bl.addWidget(self.bp_warn)
+        sl.addWidget(self.bp_box)
+        self.bp_box.setVisible(False)
+        self.bp_mass.valueChanged.connect(lambda _v: self._bp_changed())
+        self.bp_nuke.toggled.connect(lambda _v: self._bp_changed())
+        self.bp_kt.valueChanged.connect(lambda _v: self._bp_changed())
+        self._bp_weapons = {}
         self.alerts = _label('')
         self.alerts.setTextFormat(Qt.RichText)
         sl.addWidget(self.alerts)
@@ -699,6 +739,7 @@ class LoadoutPage(QWidget):
             return
         self._busy = True
         self.weightless.setChecked(self.lo.weightless)
+        self._bp_show()
         self._busy = False
         self._draw_strip()
         self._pylon_header()
@@ -821,7 +862,10 @@ class LoadoutPage(QWidget):
             if self.group_filter:
                 found = [w for w in found if w['group'] == self.group_filter]
             labels = [w['ru'] or w['en'] or w['stem'] for w in found[:ANY_LIMIT]]
+            other_bp = self._bp_slots(exclude=key)
             for w, label in zip(found[:ANY_LIMIT], labels):
+                if other_bp and self._is_bp_weapon(w['path']):
+                    continue                      # самолёт-бомба уже висит на другом пилоне
                 sub = _kg(w['mass']) or '—'
                 if labels.count(label) > 1:           # одинаковые названия — разные файлы: покажем имя файла
                     sub += ' · ' + w['stem']
@@ -1003,6 +1047,8 @@ class LoadoutPage(QWidget):
         if key is None:
             return False
         what, value = payload
+        if what == 'weapon' and self._is_bp_weapon(value) and self._bp_slots(exclude=key):
+            return False                          # самолёт-бомба может быть только один
         if self.pylons.scheme == 'slots':
             if what == 'variant':
                 self.lo.slots[key] = {'variant': value}
@@ -1045,6 +1091,95 @@ class LoadoutPage(QWidget):
         L.mirror(self.lo, self.pylons, self.selected, dst)
         self._changed()
         return True
+
+    def _is_bp_weapon(self, path):
+        """Оружие отцепляет самолёт-бомбу (как Mistel)?"""
+        k = L.weapon_key(path or '')
+        if k not in self._bp_weapons:
+            tree = self.win.source.load(path) if path else None
+            self._bp_weapons[k] = bool(tree is not None and tree.get('releasesBombPlane'))
+        return self._bp_weapons[k]
+
+    def _bp_slots(self, exclude=None):
+        if self.lo is None:
+            return []
+        if self.pylons is not None and self.pylons.scheme == 'slots':
+            items = [(k, (v or {}).get('weapon')) for k, v in self.lo.slots.items()]
+        else:
+            items = list(self.lo.legacy.items())
+        return [k for k, w in items if k != exclude and w and self._is_bp_weapon(w)]
+
+    def _bp_show(self):
+        """Блок «Самолёт под подвеской» — только когда висит самолёт-бомба."""
+        has = bool(self.lo is not None and self._bp_slots())
+        self.bp_box.setVisible(has)
+        if not has:
+            return
+        bp = self.lo.bomb_plane or {}
+        name = bp.get('vehicle') or ''
+        v = next((x for x in self.win.vehicles if x['name'] == name), None) if name else None
+        self.bp_vehicle.setText((v.get('ru') or v.get('en') or name) if v else 'штатный')
+        self.bp_mass.setValue(float(bp.get('explosive_mass') or 0))
+        self.bp_nuke.setChecked(bool(bp.get('nuclear_kt')))
+        if bp.get('nuclear_kt'):
+            self.bp_kt.setValue(float(bp['nuclear_kt']))
+        nuke = self.bp_nuke.isChecked()
+        self.bp_kt.setVisible(nuke)
+        self.bp_warn.setVisible(nuke)
+        self.bp_mass.setVisible(not nuke)
+        self.bp_mass_label.setVisible(not nuke)
+
+    def _bp_changed(self):
+        if self._busy or self.lo is None:
+            return
+        bp = dict(self.lo.bomb_plane or {})
+        bp['explosive_mass'] = self.bp_mass.value() or None
+        bp['nuclear_kt'] = self.bp_kt.value() if self.bp_nuke.isChecked() else None
+        self.lo.bomb_plane = {k: v for k, v in bp.items() if v}
+        self._busy = True
+        self._bp_show()
+        self._busy = False
+        self._changed()
+
+    def _bp_pick(self):
+        """Выбор самолёта снизу: поиск с опечатками по самолётам игры."""
+        from PySide6.QtWidgets import QDialog, QLineEdit, QListWidget, QListWidgetItem
+        from ..game import index as X
+        dlg = QDialog(self)
+        dlg.setWindowTitle('Самолёт под подвеской')
+        dlg.resize(420, 520)
+        lay = QVBoxLayout(dlg)
+        find = QLineEdit()
+        find.setPlaceholderText('Поиск самолёта')
+        lay.addWidget(find)
+        lst = QListWidget()
+        lay.addWidget(lst, 1)
+
+        def fill():
+            lst.clear()
+            item = QListWidgetItem('штатный')
+            item.setData(Qt.UserRole, '')
+            lst.addItem(item)
+            for v in X.search(self.win.vehicles, find.text(), 'air')[:300]:
+                item = QListWidgetItem(v.get('ru') or v.get('en') or v['name'])
+                item.setData(Qt.UserRole, v['name'])
+                lst.addItem(item)
+
+        def pick(item):
+            bp = dict(self.lo.bomb_plane or {})
+            bp['vehicle'] = item.data(Qt.UserRole)
+            self.lo.bomb_plane = {k: v for k, v in bp.items() if v}
+            dlg.accept()
+            self._busy = True
+            self._bp_show()
+            self._busy = False
+            self._changed()
+
+        find.textChanged.connect(lambda _t: fill())
+        lst.itemActivated.connect(pick)
+        lst.itemClicked.connect(pick)
+        fill()
+        dlg.exec()
 
     def _weightless(self, checked):
         if self._busy or self.lo is None:
@@ -1089,8 +1224,7 @@ class LoadoutPage(QWidget):
 def _matches(text, *names):
     """Запрос в названии без учёта раскладки, дефисов и пробелов: «аим 9» найдёт «AIM-9M»."""
     from ..game import search as S
-    keys = [f for n in names for f in S.forms(n)]
-    return any(q in k for q in S.forms(text) for k in keys)
+    return S.matches(text, *names)
 
 
 def _short_warning(text):

@@ -4,6 +4,7 @@ from ..game import blk as B
 from ..loadout import weapon_key
 from .catalog import gun_paths, shells_in, shell_block
 from .validate import check
+from . import nuclear
 
 
 def copy_path(stock, unit_class):
@@ -16,7 +17,7 @@ def copy_path(stock, unit_class):
     return '%s/%s__%s' % (folder, unit_class, name)
 
 
-def build_files(source, unit, kind, preset, ammo, unit_class):
+def build_files(source, unit, kind, preset, ammo, unit_class, extra_edits=()):
     """Возвращает (файлы, правка машины, ячейки миссии, ошибки)."""
     guns = gun_paths(unit, kind, source, preset)
     gun = ammo.gun or next((p for _, p, _ in guns if shells_in(source, p)), '')
@@ -44,10 +45,10 @@ def build_files(source, unit, kind, preset, ammo, unit_class):
     edits = [e for e in ammo.edits if weapon_key(e.file) == weapon_key(gun)]
     if len(edits) != len(ammo.edits):
         problems.append('правка снаряда относится к другому файлу орудия')
-    patch, bad = E.edits_text(tree, edits)
+    patch, bad = E.edits_text(tree, [*edits, *extra_edits])
     problems += bad
     capacity_changed = bool(ammo.stock_capacity and ammo.capacity != ammo.stock_capacity)
-    needs_copy = bool(ammo.gun or extra or edits or ammo.air_guns or capacity_changed)
+    needs_copy = bool(ammo.gun or extra or edits or ammo.air_guns or capacity_changed or ammo.nuclear)
     if not needs_copy and not any(s.shell or s.count for s in ammo.slots):
         return [], '', [], problems
     chosen = [(names.get(s.shell, ''), s.count) for s in ammo.slots]
@@ -57,7 +58,22 @@ def build_files(source, unit, kind, preset, ammo, unit_class):
     if not needs_copy:
         return [], '', chosen, problems
     copied = copy_path(gun, unit_class)
-    text = 'include "#/develop/gameBase/%s"\n%s%s' % (gun, ''.join(extra), patch)
+    if ammo.nuclear:
+        donor = source.load('gameData/Weapons/groundModels_weapons/125mm_2A46_M1_T_80BVM_user_cannon.blk')
+        sample = next((b.block('bullet') for b in donor.blocks if b.block('bullet') and
+                       b.block('bullet').block('rocket')), None) if donor else None
+        for key, yield_kt in ammo.nuclear.items():
+            path, _, shell = key.partition('|')
+            if weapon_key(path) != weapon_key(gun):
+                problems.append('ядерный заряд относится к другому орудию')
+                continue
+            try:
+                tree = nuclear.apply(tree, shell, yield_kt, sample)
+            except ValueError as exc:
+                problems.append(str(exc))
+        text = B.to_text(tree) + ''.join(extra) + patch
+    else:
+        text = 'include "#/develop/gameBase/%s"\n%s%s' % (gun, ''.join(extra), patch)
     files = [('content/pkg_local/' + copied, text)]
     if kind in ('air', 'heli'):
         wp = unit.block('weapon_presets')

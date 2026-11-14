@@ -120,18 +120,25 @@ def restore_original(app_dir, full, record):
     return True, ''
 
 
-def write(game_dir, items, app_dir, dry_run=False, manifest=None):
+def write(game_dir, items, app_dir, dry_run=False, manifest=None, shared=None):
     """Записать набор [(путь от папки игры, текст)] по манифесту app_dir: чужой или изменённый после записи файл —
     отказ до первой записи; свой старый — в бэкап; свои файлы, выпавшие из набора, — убрать (через бэкап)."""
     man = manifest if manifest is not None else load_manifest(app_dir)
+    shared = shared or {}
     # 1. проверка всех путей до первой записи
     blocked = []
-    for rel, _text in items:
+    for rel, text in items:
         full = os.path.join(game_dir, rel)
+        data = text if isinstance(text, bytes) else text.encode('utf-8')
+        owner_hashes = shared.get(rel, set())
+        if owner_hashes and owner_hashes != {sha(data)}:
+            blocked.append('файл нужен другому применению с другим содержимым: ' + rel)
         if os.path.exists(full):
             rec = man['files'].get(rel)
             with open(full, 'rb') as f:
                 cur = sha(f.read())
+            if rec is None and cur == sha(data) and owner_hashes == {cur}:
+                continue
             if rec is None:
                 blocked.append('чужой файл, не трогаю: ' + rel)
             elif rec != cur:
@@ -148,6 +155,10 @@ def write(game_dir, items, app_dir, dry_run=False, manifest=None):
                 old = f.read()
             if old == data:
                 report.append('без изменений: ' + rel)
+                if not dry_run and rel not in man['files']:
+                    man['files'][rel] = sha(data)
+                    man.setdefault('sizes', {})[rel] = len(data)
+                    save_manifest(app_dir, man)
                 continue
             if not dry_run:
                 bak = os.path.join(app_dir, 'backups', stamp, rel)
@@ -167,6 +178,13 @@ def write(game_dir, items, app_dir, dry_run=False, manifest=None):
     wanted = {rel for rel, _ in items}
     for rel, h in list(man['files'].items()):
         if rel in wanted:
+            continue
+        if rel in shared:
+            report.append('оставлю общему применению: ' + rel)
+            if not dry_run:
+                del man['files'][rel]
+                man.get('sizes', {}).pop(rel, None)
+                save_manifest(app_dir, man)
             continue
         full = os.path.join(game_dir, rel)
         if os.path.exists(full):
@@ -198,12 +216,20 @@ def write(game_dir, items, app_dir, dry_run=False, manifest=None):
     return True, report
 
 
-def remove(game_dir, app_dir, dry_run=False, mission_dir=None):
+def remove(game_dir, app_dir, dry_run=False, mission_dir=None, shared=None):
     """Откат по манифесту: удалить свои неизменённые файлы, вернуть принятые под учёт оригиналы.
     mission_dir — папка своих миссий (относительно игры): если опустела, убрать и её."""
     man = load_manifest(app_dir)
+    shared = shared or {}
     report = []
     for rel, h in list(man['files'].items()):
+        if rel in shared:
+            report.append('оставлю общему применению: ' + rel)
+            if not dry_run:
+                del man['files'][rel]
+                man.get('sizes', {}).pop(rel, None)
+                save_manifest(app_dir, man)
+            continue
         full = os.path.join(game_dir, rel)
         if not os.path.exists(full):
             report.append('уже нет: ' + rel)
@@ -252,9 +278,12 @@ def check_paths(items):
             bad.append('недопустимый путь: ' + rel)
         elif norm.lower() in seen:
             bad.append('путь повторяется: ' + rel)
-        elif norm.startswith(PKG_DIR):
+        elif norm.lower().startswith(PKG_DIR.lower()):   # игра пишет и gamedata/, и gameData/ — регистр не важен
             if not (name.startswith(PREFIX) and name.endswith('.blk')):
                 bad.append('в pkg_local пишу только свои копии %s*.blk: %s' % (PREFIX, rel))
+        elif norm.lower().startswith('content/pkg_local/levels/') and len(parts) == 4:   # своя копия уровня
+            if not (name.startswith(PREFIX) and name.endswith(('.blk', '.bin'))):
+                bad.append('в levels пишу только свои копии уровня %s*: %s' % (PREFIX, rel))
         elif norm.startswith(MISSION_DIR + '/') and len(parts) == len(MISSION_DIR.split('/')) + 1:
             if not ((name.startswith(PREFIX) and name.endswith('.blk'))
                     or (name.startswith('usr_' + PREFIX) and name.endswith('.csv'))):
@@ -285,6 +314,20 @@ def installed(app_root):
     return out
 
 
+def _shared_files(app_root, app_id, game_dir):
+    """Hashes owned by other applications for this game directory."""
+    result = {}
+    for other, man in installed(app_root).items():
+        if other == app_id:
+            continue
+        other_game = man.get('meta', {}).get('game_dir')
+        if other_game and os.path.normcase(os.path.abspath(other_game)) != os.path.normcase(os.path.abspath(game_dir)):
+            continue
+        for rel, digest in man['files'].items():
+            result.setdefault(rel, set()).add(digest)
+    return result
+
+
 def status(app_root):
     """Что записано программой: [(id применения, meta, {состояние: число файлов})], состояние — «на месте»,
     «нет файла», «изменён после записи» (сверка SHA-256 с манифестом)."""
@@ -306,18 +349,16 @@ def status(app_root):
 
 def install(game_dir, app_root, app_id, items, meta=None, dry_run=False):
     """Записать набор файлов одного применения. (ok, отчёт). Повторная установка того же id обновляет набор
-    (файлы, выпавшие из набора, убираются). Файл другого применения — отказ."""
+    (файлы, выпавшие из набора, убираются). Совпадающие файлы делятся между применениями."""
     bad = check_paths(items)
     app_dir = _app_dir(app_root, app_id)
-    for other, man in installed(app_root).items():
-        if other != app_id:
-            bad += ['файл уже записан применением %s: %s' % (other, rel) for rel, _ in items if rel in man['files']]
     if bad:
         return False, bad
-    ok, report = write(game_dir, items, app_dir, dry_run)
+    ok, report = write(game_dir, items, app_dir, dry_run, shared=_shared_files(app_root, app_id, game_dir))
     if ok and not dry_run:
         man = load_manifest(app_dir)
-        man['meta'] = dict(meta or {}, installed=dt.datetime.now().isoformat(timespec='seconds'))
+        man['meta'] = dict(meta or {}, game_dir=game_dir,
+                           installed=dt.datetime.now().isoformat(timespec='seconds'))
         save_manifest(app_dir, man)
     return ok, report
 
@@ -327,7 +368,8 @@ def uninstall(game_dir, app_root, app_id, dry_run=False):
     app_dir = _app_dir(app_root, app_id)
     if not os.path.isfile(os.path.join(app_dir, 'manifest.json')):
         return ['нет такого применения: ' + app_id]
-    report = remove(game_dir, app_dir, dry_run, mission_dir=MISSION_DIR)
+    report = remove(game_dir, app_dir, dry_run, mission_dir=MISSION_DIR,
+                    shared=_shared_files(app_root, app_id, game_dir))
     if not dry_run and not load_manifest(app_dir)['files']:
         os.remove(os.path.join(app_dir, 'manifest.json'))
         if os.path.isdir(os.path.join(app_dir, 'backups')):

@@ -1,6 +1,6 @@
 """Чтение контейнеров *.vromfs.bin War Thunder.
 
-Сверено с wt_ext_cli v0.6.6 (режим Raw) побайтно на всех 8 архивах игры, см. docs/research/tools.md.
+Сверено с wt_ext_cli v0.6.6 (режим Raw) побайтно на всех 8 архивах игры, см.
 """
 import hashlib
 import struct

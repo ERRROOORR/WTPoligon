@@ -9,6 +9,7 @@ from wtpoligon.ammo.catalog import Shell, shells_in, stock_setup
 from wtpoligon.ammo.model import Ammo, Slot, AirGun
 from wtpoligon.game.index import unit_file
 from wtpoligon.game.source import open_source
+from wtpoligon.stats import Stats
 
 
 GAME = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'WarThunder')
@@ -87,6 +88,26 @@ class TestAmmoGame(unittest.TestCase):
         self.assertIn(donor.block, mission)
         self.assertTrue(any(donor.block in text for path, text in plan.files if path.startswith('content/pkg_local/gameData/Weapons/')))
 
+    def test_m1a2_reload_ammo_and_nuclear_share_one_gun_copy(self):
+        vehicle = self.vehicle('us_m1a2_sep3_abrams', 'tank')
+        unit = self.source.load(vehicle['file'])
+        if unit is None:
+            self.skipTest('M1A2 SEP V3 отсутствует в версии игры')
+        guns, shells, capacity = stock_setup(self.source, vehicle)
+        stats = Stats(self.source, vehicle)
+        reload_param = next(p for p in stats.params if p.section == 'Перезарядка'
+                            and p.file == guns[0][1])
+        stats.set_reload(reload_param, 3.0)
+        ammo = Ammo(capacity=capacity, stock_capacity=capacity,
+                    slots=[Slot(shells[0].key, 10), Slot(), Slot(), Slot()],
+                    nuclear={shells[0].key: 1.0})
+        plan = build.stock_plan(self.source, vehicle, False, stats=stats, ammo=ammo)
+        gun_paths = [p for p, _ in plan.files if p.startswith('content/pkg_local/gameData/Weapons/')]
+        self.assertEqual(len(gun_paths), 1)
+        self.assertIn('@override:shotFreq', dict(plan.files)[gun_paths[0]])
+        self.assertIn('yield:r=1.0', dict(plan.files)[gun_paths[0]])
+        self.assertEqual(build.verify_plan(self.source, plan), [])
+
     def test_air_preset_and_gun_copy(self):
         source = self.source
         vehicle = self.vehicle('f_15c_golden_eagle', 'air')
@@ -97,7 +118,7 @@ class TestAmmoGame(unittest.TestCase):
         plan = build.stock_plan(source, vehicle, False, ammo=ammo)
         self.assertEqual(build.verify_plan(source, plan), [])
         self.assertTrue(any('weaponPresets' in path for path, _ in plan.files))
-        self.assertTrue(any('Weapons/' in path for path, _ in plan.files))
+        self.assertTrue(any('weapons/' in path.lower() for path, _ in plan.files))
 
     def test_donor_gun(self):
         source = self.source

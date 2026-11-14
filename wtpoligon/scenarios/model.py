@@ -49,7 +49,6 @@ class Rules:
     infinite_fuel: bool = True
     player_respawn: bool = True
     moving_ships: bool = True
-    rapid_reload: int = 0
 
 
 @dataclass
@@ -95,7 +94,9 @@ class Scenario:
                                               'targets': [Target(**t) for t in raw.get('targets', [])]})
         return cls(mode=data.get('mode', 'air'), player=data.get('player', ''),
                    player_br=data.get('player_br'), conditions=Conditions(**data.get('conditions', {})),
-                   categories=categories, duel=Duel(**data.get('duel', {})), rules=Rules(**data.get('rules', {})))
+                   categories=categories, duel=Duel(**data.get('duel', {})),
+                   rules=Rules(**{k: v for k, v in data.get('rules', {}).items()
+                                  if k in Rules.__dataclass_fields__}))
 
     @classmethod
     def from_legacy(cls, data):

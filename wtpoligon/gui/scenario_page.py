@@ -586,14 +586,6 @@ class ScenarioPage(QWidget):
             row.addWidget(w, 1)
             row.addWidget(badge())
             card.addLayout(row)
-        row = QHBoxLayout()
-        row.addWidget(QLabel('Быстрая перезарядка и ремонт'))
-        rapid = spin(r.rapid_reload, 0, 3600)
-        rapid.valueChanged.connect(lambda v: setattr(r, 'rapid_reload', v))
-        row.addWidget(rapid)
-        row.addWidget(QLabel('сек (0 — выключено)'))
-        row.addWidget(badge())
-        card.addLayout(row)
 
     def _auto_all(self):
         A.refill_all(self.model, self.win.vehicles, self._seed)
@@ -648,11 +640,10 @@ class ScenarioPage(QWidget):
         def refresh(text=''):
             shown.clear()
             results.clear()
-            query = text.casefold().strip()
-            for vehicle in candidates:
+            from ..game import search as S
+            ordered = [v for v, _score in S.searcher(candidates).search(text)] if text.strip() else candidates
+            for vehicle in ordered:
                 name = vehicle.get('ru') or vehicle.get('en') or vehicle['name']
-                if query and query not in (name + ' ' + vehicle['name']).casefold():
-                    continue
                 shown.append(vehicle)
                 results.addItem('%s · %s · БР %s' % (name, vehicle['name'], vehicle.get('br') or '—'))
                 if len(shown) >= 200:

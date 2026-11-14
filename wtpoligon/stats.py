@@ -12,10 +12,10 @@ from .game import blk as B
 
 
 SECTIONS = {
-    'air': ('Двигатель', 'Масса', 'Аэродинамика', 'РЛС', 'СПО', 'Ловушки', 'Название'),
-    'heli': ('Двигатель', 'Масса', 'Аэродинамика', 'РЛС', 'СПО', 'Ловушки', 'Название'),
-    'tank': ('Двигатель', 'Масса', 'Трансмиссия', 'Броня', 'Название'),
-    'ship': ('Ход', 'Название'),
+    'air': ('Двигатель', 'Масса', 'Аэродинамика', 'РЛС', 'СПО', 'Ловушки', 'Перезарядка', 'Название'),
+    'heli': ('Двигатель', 'Масса', 'Аэродинамика', 'РЛС', 'СПО', 'Ловушки', 'Перезарядка', 'Название'),
+    'tank': ('Двигатель', 'Масса', 'Трансмиссия', 'Броня', 'Перезарядка', 'Название'),
+    'ship': ('Ход', 'Перезарядка', 'Название'),
 }
 EDITABLE_TYPES = ('r', 'i', 'i64', 't', 'b', 'p2', 'p3', 'p4', 'ip2', 'ip3', 'ip4')
 RADAR_ANGLES = {'azimuth': ('azimuthLimits', 180), 'elevation': ('elevationLimits', 90)}
@@ -103,15 +103,17 @@ class Stats:
         self.engine_mode = 'power'
         self.engine_instances = []
         self.trap_containers = set()
+        self.weapon_refs = {}
         self._load(self.unit_file)
         unit = self.trees.get(self.unit_file)
         if unit is None:
             return
-        fm = _file_ref(unit.get('fmFile'), fm=True)
+        fm = _file_ref(unit.get('fmFile') or 'fm/' + self.unit_file.replace('\\', '/').split('/')[-1], fm=True)
         if fm and source.load(fm) is not None:
             self.refs[fm] = 'fmFile'
             self._load(fm)
         self._sections(unit, fm if fm in self.trees else self.unit_file)
+        self._weapons(unit)
 
     def _load(self, file):
         tree = self.source.load(file)
@@ -280,6 +282,68 @@ class Stats:
                           path, 'шт.', 'проверено в игре', tooltip=raw, section_visible=False)
                 if slot_no != 0:
                     self.trap_containers.add((self.unit_file, path))
+
+    def _weapons(self, unit):
+        """Орудия машины: ссылка остаётся в копии машины, shotFreq — в копии файла оружия."""
+        candidates = []
+        common = unit.block('commonWeapons')
+        if common is not None:
+            for i, weapon in enumerate((b for b in common.blocks if b.name == 'Weapon'), 1):
+                candidates.append(('commonWeapons/Weapon[%d]' % i, weapon))
+        slots = unit.block('WeaponSlots')
+        if slots is not None:
+            selected = {int(k): v for k, v in self.loadout.slots.items()} if self.loadout else {}
+            for i, slot in enumerate((b for b in slots.blocks if b.name == 'WeaponSlot'), 1):
+                variants = [b for b in slot.blocks if b.name == 'WeaponPreset']
+                if not variants:
+                    continue
+                choice = selected.get(slot.get('index', i - 1))
+                if choice:
+                    name = choice.get('variant') or choice.get('sample')
+                    matches = [(j, v) for j, v in enumerate(variants, 1) if v.get('name') == name]
+                    if not matches:
+                        continue
+                    j, variant = matches[0]
+                else:
+                    j, variant = 1, variants[0]
+                for k, weapon in enumerate((b for b in variant.blocks if b.name == 'Weapon'), 1):
+                    candidates.append(('WeaponSlots/WeaponSlot[%d]/WeaponPreset[%d]/Weapon[%d]' % (i, j, k), weapon))
+        for prefix, weapon in candidates:
+            raw = weapon.get('blk')
+            file = _file_ref(raw)
+            if not file:
+                continue
+            tree = self.source.load(file)
+            shot = E.stock_param(tree, 'shotFreq') if tree is not None else None
+            if shot is None or shot[0] not in ('r', 'i') or not isinstance(shot[1], (int, float)) or shot[1] <= 0:
+                continue
+            # Пусковые ракет и ловушек имеют shotFreq, но это не темп пушечного огня.
+            if tree.block('bullet') is None or tree.block('bullet').block('rocket') is not None:
+                continue
+            if weapon.get('trigger') == 'countermeasures':
+                continue
+            self.weapon_refs.setdefault(file, []).append(prefix)
+            if file in self.trees:
+                continue
+            self._load(file)
+            title = (L.weapon_title(self.source, raw) if hasattr(self.source, 'lang_csv') else '')
+            title = title or os.path.splitext(os.path.basename(raw))[0]
+            self._add('Перезарядка', title, file, 'shotFreq', status='проверено в игре')
+
+    def reload_value(self, p, stock=False):
+        frequency = p.stock if stock else self.value(p)
+        return 60 * frequency if self.vehicle['kind'] in ('air', 'heli') else 1 / frequency
+
+    def set_reload(self, p, value):
+        if not math.isfinite(value) or value <= 0:
+            raise ValueError('значение должно быть больше нуля')
+        if self.vehicle['kind'] in ('air', 'heli'):
+            frequency = value / 60
+        else:
+            if value < 0.01:
+                raise ValueError('минимальная перезарядка — 0,01 с')
+            frequency = 1 / value
+        self.set(p, frequency)
 
     def trap_rows(self):
         return [p for p in self.params if p.section == 'Ловушки']
@@ -620,11 +684,12 @@ def ranges(source, vehicles, kind, params, cache_dir):
         data = {}
     if data.get('signature') != source.signature():
         data = {'signature': source.signature(), 'ranges': {}}
+    scanned = data.setdefault('scanned', {})   # что уже искали — даже если у штатной техники не нашлось
     key = 'semantic-v3|' + kind + '|' + params[0].section
     def semantic(p):
         return re.sub(r'EngineType\d+', 'EngineType*', p.path) + '|' + p.engine_class
-    if key not in data['ranges'] or any(semantic(p) not in data['ranges'][key]
-                                        for p in params if p.type in ('r', 'i', 'i64')):
+    if key not in data['ranges'] or any(semantic(p) not in data['ranges'][key] and semantic(p) not in
+                                        scanned.get(key, ()) for p in params if p.type in ('r', 'i', 'i64')):
         found = {}
         groups = {}
         for p in params:
@@ -637,7 +702,7 @@ def ranges(source, vehicles, kind, params, cache_dir):
             unit = source.load(vehicle['file'])
             if unit is None:
                 continue
-            fm = _file_ref(unit.get('fmFile'), fm=True)
+            fm = _file_ref(unit.get('fmFile') or 'fm/' + vehicle['file'].split('/')[-1], fm=True)
             for ref, wanted in groups.items():
                 if ref == 'fmFile':
                     file = fm
@@ -671,6 +736,8 @@ def ranges(source, vehicles, kind, params, cache_dir):
                         pair = found.setdefault(semantic(p), [value, value])
                         pair[0], pair[1] = min(pair[0], value), max(pair[1], value)
         data['ranges'][key] = found
+        scanned[key] = sorted(set(scanned.get(key, ())) | {semantic(p) for p in params
+                                                             if p.type in ('r', 'i', 'i64')})
         with open(cache_path, 'w', encoding='utf-8') as out:
             json.dump(data, out, ensure_ascii=False)
     return {p.path: data['ranges'][key][semantic(p)] for p in params

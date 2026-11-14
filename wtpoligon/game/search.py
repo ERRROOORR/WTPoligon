@@ -19,6 +19,8 @@ PHONETIC['ж'] = 'zh'
 # буквы, которые выглядят как латинские (набрал «с» вместо «c» на русской раскладке)
 LOOKALIKE = dict(PHONETIC, **{'с': 'c', 'в': 'b', 'р': 'p', 'х': 'x', 'н': 'h', 'у': 'y', 'и': 'u', 'п': 'n',
                              'ц': 'c'})
+KEYBOARD = str.maketrans('йцукенгшщзхъфывапролджэячсмитьбю',
+                         'qwertyuiop[]asdfghjkl;\'zxcvbnm,.')
 COUNTRY_PREFIX = re.compile(r'^(ussr|germ|us|uk|jp|cn|it|fr|sw|il|ger|br|sweden|china|japan|italy|france|'
                             r'israel|britain|germany|usa)_')
 MIN_FUZZY = 80          # порог нечёткого совпадения (0–100)
@@ -37,7 +39,7 @@ def forms(text):
     """Латинские формы строки: по звучанию и по начертанию (без повторов)."""
     n = norm(text)
     out = []
-    for f in (latin(n, PHONETIC), latin(n, LOOKALIKE)):
+    for f in (latin(n, PHONETIC), latin(n, LOOKALIKE), norm(n.translate(KEYBOARD))):
         if f and f not in out:
             out.append(f)
     return out
@@ -112,3 +114,11 @@ def searcher(items, keys_fn=None, label=None):
     if key not in _CACHE or _CACHE[key].items is not items:
         _CACHE[key] = Searcher(items, keys_fn, label)
     return _CACHE[key]
+
+
+def matches(text, *names):
+    """Match a query against arbitrary labels with the same layout and typo rules."""
+    if not forms(text):
+        return True
+    items = [{'name': name} for name in names if name]
+    return bool(Searcher(items, keys_fn=lambda item: forms(item['name'])).scores(text))
