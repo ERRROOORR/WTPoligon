@@ -44,7 +44,7 @@ For a range edit, make a sensor copy and point the vehicle's matching `sensors/s
 | `rocket/guidance/opticalSeeker/rangeMax` | Missile weapon BLK | Overall acquisition limit, m | Verified in game | A reduced value shortened tested front and rear infrared lock distance. |
 | `rocket/guidance/opticalSeeker/{rangeBand0..7,fov,lockAngleMax,angleMax}` | Missile weapon BLK | Band ranges, view and lock angles | Unverified (in files only) | Present in the tested missile's file; band meaning and local effects were not isolated. |
 | `rocket/guidance/table0..2/{rangeMax,rangeMaxDogfight,timeMax}` | Missile weapon BLK | Launch envelope tables | Unverified (in files only) | Separate from seeker range; changes to `rangeMax` in the seeker do not prove these tables recalculate. |
-| RWR `range` | Sensor root | Warning range, m | Verified in game | Reduction shortened warning against an aircraft radar. A powerful ground emitter was still heard farther than that number. |
+| RWR `range` | Sensor root | Warning range, m | Verified in game | Reduction shortened warning against an aircraft radar. A high-power ground emitter was still heard farther than that number. |
 | RWR `{targetRange,mandatoryRecognition,detectTracking,detectLaunch}` | Sensor root | Indication and classification settings | Unverified (in files only) | Found in source data; the range test did not isolate them. |
 | `WeaponSlots/WeaponSlot/WeaponPreset/Weapon/bullets` with `trigger=countermeasures` | Aircraft BLK | Launcher quantity, integer | Verified in game | Increased count appeared on HUD and dispensed. |
 

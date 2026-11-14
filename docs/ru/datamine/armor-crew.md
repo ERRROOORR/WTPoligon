@@ -12,7 +12,7 @@ BLK машины описывает повреждаемые группы и ч�
 | `DamageParts/<группа ЭРА>/{kineticProtectionEquivalent,cumulativeProtectionEquivalent}` | BLK наземной машины | Возможные параметры защиты ЭРА | Unverified (in files only) | Найдены в группах динамической защиты; локальная правка не проверялась. |
 | `DamageParts/<группа>/<часть>/{fireProtectionHp,fireParamsPreset}` | BLK машины | Защита от огня и имя пресета | Unverified (in files only) | Есть в описаниях повреждения; итог пожара не изолирован. |
 | `DamageEffects/part/{name,onHit,onKill}` | BLK машины | Действия при попадании и разрушении | Unverified (in files only) | Действия могут включать пожар, взрыв, отрыв, утечку и дым; локальная правка не изолирована. |
-| `config/fireparams.blk/presets/<имя>` | Общие данные | Время, урон и тушение пожара | Unverified (in files only) | Общий пресет сам по себе не является копией отдельной машины. |
+| `config/fireparams.blk/presets/<имя>` | Общие данные | Время, урон и тушение пожара | Unverified (in files only) | Общий пресет — не копия отдельной машины. |
 | `fireParams/*` | BLK самолёта | Особые параметры пожара | Unverified (in files only) | Может сосуществовать с пресетом; приоритет не установлен. |
 | `ammoStowages/<имя>/shells`, `charges`, `count`, `firstStage`, `autoLoad` | BLK наземной или морской машины | Раскладка БК и заряжание | Unverified (in files only) | Структура указывает на отсеки и очереди; точный порядок расходования не проверен. |
 | `ammoStowages/<имя>/fatalExplosion=no` | BLK наземной машины | Попытка избежать смертельного взрыва БК | No effect | Проверенная мишень всё равно взорвалась и была уничтожена. |
