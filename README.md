@@ -1,91 +1,88 @@
 # WT Poligon
 
-**WT Poligon** is a free open-source test-drive builder for **War Thunder**. You pick a vehicle, change its
-parameters, and the program writes a single-player test mission into the game.
+Test-drive builder for War Thunder: any vehicle, any weapon on any pylon and your own characteristics in a
+single-player mission.
 
-The game's test drive runs a vehicle only with stock parameters. WT Poligon can:
+## Features
 
-- launch **any vehicle of the game**: ground vehicles, aircraft, helicopters, ships;
-- put **any weapon of the game on any pylon**, including SAMs of ground vehicles and ships;
-- change **characteristics**: engine power and thrust, mass, radar range and scan angles, RWR, countermeasures;
-- change **ammunition**: any shell of the game in the ammo rack, its mass, explosive and velocity;
-- build a **scenario**: targets by battle rating or by hand, duels, weather, time, rules;
-- **roll back**: game files are not modified, everything the program wrote can be removed.
+- **Any Vehicle:** ground vehicles, aircraft, helicopters and ships, including vehicles you don't own
+- **Any Weapon on Any Pylon:** including SAMs from ground vehicles and ships
+- **Characteristics:** engine power and thrust, mass, radar, RWR, countermeasures, reload time
+- **Ammunition:** any shell of the game in the ammo rack, with its own mass, explosive and velocity
+- **Called-in Vehicles:** drones and escorts
+- **Scenarios:** targets by battle rating or by hand, duels, map, weather, time of day, rules
+- **Safe for the Game:** game files stay untouched, one button removes everything the program added
 
-**Status: closed beta (2.0-beta).** What to test: [docs/TESTING.md](docs/TESTING.md).
+**Status:** closed beta 2.0-beta. What to test: [docs/TESTING.md](docs/TESTING.md).
 
-## What's new in 2.0-beta
+## What's New in 2.0-beta
 
-- **Called-in vehicles** — new step. Any aircraft as a drone of your vehicle, tanks and SAM launchers as escort,
-  vehicles from *My vehicles*.
-- **My vehicles** — a configured vehicle can be saved and opened later. Saved vehicles appear in the vehicle search.
-- **Bomb planes (Mistel)** — on any aircraft, with **any aircraft** below. The aircraft below gets a warhead:
-  explosive mass or nuclear. A nuclear warhead deals nuclear damage, the explosion looks ordinary.
-- **Radar** — coverage changes in all modes, including close combat (up to 360°). Detection range
-  changes the target display area, the scale and the transmitters.
-- **Ammunition restore** now works the same way as in the game's test drive: ammunition is restored once everything
-  is fired.
-- **Nuclear charge** for bombs, missiles and shells in *Ammunition*. **Reload** section in *Characteristics*,
-  down to instant reload.
-- Missile containers (×2, ×4) carry all their missiles on any pylon. Pylons without weapons can't be selected.
-- **Map borders removed** — for narrow maps the program writes a level copy with wide borders.
-- **Program log** — `%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`. The *Logs* button adds it to the archive.
-- Fixes for game version 2.61: writing to the game works; vehicles with a hyphen in the name and aircraft without an
-  explicit flight model launch; *Characteristics* reopen instantly; search tolerates typos everywhere.
+Called-in vehicles, saved vehicles, Mistel with any aircraft and radar setup in every mode.
+
+- **Called-in Vehicles:** any aircraft as your drone, tanks and SAM launchers as escort, saved vehicles included
+- **My Vehicles:** save a configured vehicle and open it later; saved vehicles show up in search
+- **Mistel:** hang any aircraft under any carrier, with an explosive or nuclear warhead
+- **Radar:** scan angles in every mode, up to 360° in close combat, and detection range
+- **Ammunition Restore:** as in the game's test drive
+- **Nuclear Charge:** for bombs, missiles and shells
+- **Reload:** any reload time, down to instant
+- **Missile Pods:** ×2 and ×4 on any pylon
+- **No Map Borders**
+- **Program Log:** included in the Logs archive
+- **Game 2.61:** all vehicles launch again, Characteristics open instantly, search handles typos everywhere
 
 Full list: [CHANGELOG.md](CHANGELOG.md).
 
-## Download and install
+## Download and Install
 
 **[⬇ Download WT Poligon 2.0-beta](https://github.com/ERRROOORR/WTPoligon/releases/download/v2.0-beta/WTPoligon-2.0-beta.zip)**
 (Windows, 83 MB) · [all releases](https://github.com/ERRROOORR/WTPoligon/releases)
 
-1. Download the archive and extract it to any folder. The program does not run from inside the archive.
-2. Run **`run.bat`**. Python is included.
-   If Windows shows a warning, choose "More info" → "Run anyway".
-3. The program finds War Thunder automatically. If not, select the game folder (the one with `aces.vromfs.bin`).
-   The first start takes up to a minute: the program reads the game files.
-4. Select a vehicle → go through the steps → **Write to game**.
-5. In the game: **Single missions → Custom → "WTP5 — <vehicle>"**. The game does not need a restart.
+1. Extract the archive to any folder (it does not run from inside the archive)
+2. Run **`run.bat`**; Python is included. If Windows warns you, choose "More info" → "Run anyway"
+3. The program finds War Thunder by itself; if not, select the game folder (the one with `aces.vromfs.bin`)
+4. Pick a vehicle, go through the steps, press **Write to game**
+5. In the game: **Single missions → Custom → "WTP5 — <vehicle>"**, no restart needed
 
-Removing everything the program wrote: "Roll back all" on the last step. Removing the program: delete its folder.
-Problems: press **"Logs"** on the last step and send the archive from the `logs` folder.
-The interface is in Russian; English is planned.
+- **Remove:** "Roll back all" on the last step removes everything the program added; to remove the program, delete its
+  folder
+- **Problems:** press **"Logs"** on the last step and send the archive from the `logs` folder
+- **Language:** the interface is in Russian; English is planned
 
 ---
 
-**WT Poligon** — бесплатный конструктор тестовых выездов для **War Thunder** с открытым кодом. Вы выбираете
-технику, меняете её параметры, программа записывает в игру одиночную тестовую миссию.
+# WT Poligon (RU)
 
-Тестовый выезд в игре запускает машину только со стоковыми параметрами. WT Poligon умеет:
+Конструктор тестовых выездов для War Thunder: любая техника, любое оружие на любом пилоне и свои характеристики
+в одиночной миссии.
 
-- запускать **любую технику игры**: наземку, самолёты, вертолёты, корабли;
-- вешать **любое оружие игры на любой пилон**, в том числе ЗУР наземки и кораблей;
-- менять **характеристики**: мощность и тягу двигателя, массу, дальность и углы обзора РЛС, СПО, ловушки;
-- менять **боеприпасы**: любой снаряд игры в боекомплекте, его массу, ВВ, скорость;
-- собирать **сценарий**: цели по БР или вручную, дуэли, погода, время, правила;
-- **откатывать** записанное: файлы игры не меняются, всё записанное программой удаляется.
+## Возможности
 
-**Состояние: закрытая бета (2.0-beta).** Что проверять — [docs/TESTING.md](docs/TESTING.md).
+- **Любая техника:** наземка, самолёты, вертолёты и корабли, в том числе те, которых нет в ангаре
+- **Любое оружие на любом пилоне:** в том числе ЗУР наземки и кораблей
+- **Характеристики:** мощность и тяга двигателя, масса, РЛС, СПО, ловушки, время перезарядки
+- **Боеприпасы:** любой снаряд игры в боекомплекте, со своей массой, ВВ и скоростью
+- **Вызываемая техника:** дроны и сопровождение
+- **Сценарии:** цели по БР или вручную, дуэли, карта, погода, время суток, правила
+- **Безопасно для игры:** файлы игры не меняются, одна кнопка убирает всё, что добавила программа
+
+**Состояние:** закрытая бета 2.0-beta. Что проверять — [docs/TESTING.md](docs/TESTING.md).
 
 ## Что нового в 2.0-beta
 
-- **Вызываемая техника** — новый шаг. Любой самолёт как дрон вашей машины, танки и пусковые ЗРК в сопровождение,
-  техника из «Моей техники».
-- **Моя техника** — настроенную машину можно сохранить и открыть позже. Сохранённые машины есть в поиске техники.
-- **Самолёты-бомбы (Mistel)** — на любом самолёте, снизу — **любой самолёт**. У нижнего самолёта боевая часть:
-  масса взрывчатки или ядерная. Ядерная наносит ядерный урон, взрыв выглядит обычным.
-- **РЛС** — обзор меняется во всех режимах, в том числе в ближнем бою (до 360°). Дальность
-  обнаружения меняет зону отображения целей, шкалу и передатчики.
-- **Пополнение боезапаса** теперь работает так же, как в тест-драйве игры: боезапас пополняется, когда всё
-  выпущено.
-- **Ядерный заряд** для бомб, ракет и снарядов в «Боеприпасах». Раздел **«Перезарядка»** в «Характеристиках»,
-  вплоть до мгновенной.
-- Контейнеры с ракетами (×2, ×4) на любом пилоне несут все ракеты. Пилоны без оружия не выбираются.
-- **Убраны границы карты** — для узких карт программа пишет копию уровня с широкой границей.
-- **Журнал программы** — `%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`. Кнопка «Логи» кладёт его в архив.
-- Исправления под версию игры 2.61: работает запись в игру; запускаются машины с дефисом в имени и самолёты без явной
-  лётной модели; «Характеристики» открываются повторно мгновенно; поиск везде учитывает опечатки.
+Вызываемая техника, сохранение техники, Mistel с любым самолётом и настройка РЛС во всех режимах.
+
+- **Вызываемая техника:** любой самолёт как дрон, танки и пусковые ЗРК в сопровождение, в том числе своя техника
+- **Моя техника:** сохранить настроенную машину и открыть позже; сохранённые машины есть в поиске
+- **Mistel:** любой самолёт под любым носителем, с боевой частью из взрывчатки или ядерной
+- **РЛС:** углы обзора во всех режимах, в ближнем бою до 360°, и дальность обнаружения
+- **Пополнение боезапаса:** как в тест-драйве игры
+- **Ядерный заряд:** для бомб, ракет и снарядов
+- **Перезарядка:** любое время перезарядки, вплоть до мгновенной
+- **Контейнеры с ракетами:** ×2 и ×4 на любом пилоне
+- **Без границ карты**
+- **Журнал программы:** входит в архив «Логи»
+- **Игра 2.61:** снова запускается вся техника, «Характеристики» открываются мгновенно, поиск везде понимает опечатки
 
 Полный список — [CHANGELOG.md](CHANGELOG.md).
 
@@ -94,44 +91,28 @@ The interface is in Russian; English is planned.
 **[⬇ Скачать WT Poligon 2.0-beta](https://github.com/ERRROOORR/WTPoligon/releases/download/v2.0-beta/WTPoligon-2.0-beta.zip)**
 (Windows, 83 МБ) · [все версии](https://github.com/ERRROOORR/WTPoligon/releases)
 
-1. Скачайте архив и распакуйте в любую папку. Из архива программа не запускается.
-2. Запустите **`run.bat`**. Python входит в архив.
-   При предупреждении Windows — «Подробнее» → «Выполнить в любом случае».
-3. Программа находит War Thunder сама. Если не нашла — укажите папку игры (где лежит `aces.vromfs.bin`).
-   Первый запуск — до минуты: программа читает файлы игры.
-4. Выберите технику → пройдите шаги → **«Записать в игру»**.
-5. В игре: **Одиночные миссии → Пользовательские → «WTP5 — <машина>»**. Перезапуск игры не нужен.
+1. Распакуйте архив в любую папку (из архива программа не запускается)
+2. Запустите **`run.bat`**, Python уже внутри. При предупреждении Windows — «Подробнее» → «Выполнить в любом случае»
+3. Программа сама находит War Thunder; если нет — укажите папку игры (где лежит `aces.vromfs.bin`)
+4. Выберите технику, пройдите шаги, нажмите **«Записать в игру»**
+5. В игре: **Одиночные миссии → Пользовательские → «WTP5 — <машина>»**, перезапуск не нужен
 
-Удалить всё записанное программой — «Откатить всё» на последнем шаге. Удалить программу — удалить её папку.
-При ошибках — кнопка **«Логи»** на последнем шаге, пришлите архив из папки `logs`.
+- **Удаление:** «Откатить всё» на последнем шаге убирает всё, что добавила программа; программа удаляется вместе
+  с папкой
+- **Проблемы:** кнопка **«Логи»** на последнем шаге, пришлите архив из папки `logs`
 
 ---
 
-## How it works
+## How It Works / Как это устроено
 
-- **Reads the installed game.** Vehicle list, weapons, names and icons come from the game archives (VROMFS, BLK
-  files) and are cached. After a game update the cache is rebuilt automatically.
-- **Writes a user mission and copies.** The test drive is a user mission in `UserMissions`. Changed vehicles,
-  weapons, radars and shells are written to `content/pkg_local` as copies: a copy includes the original file and
-  overrides only the changed fields (`include` + `@override`). The game archives are not modified.
-- **Hangar vehicles launch as themselves**, other vehicles as a copy (a copy may lack some interface elements).
-- **Every write is recorded** in a manifest with file hashes. Rollback removes exactly what the program wrote and
-  restores replaced files.
-- **Every feature is checked in the game** before it goes into the program.
-- **Python + Qt (PySide6)**, runs from source. Heavy tasks run in background processes, the window does not freeze.
-
-## Как это устроено
-
-- **Читает установленную игру.** Список техники, оружие, названия и иконки берутся из архивов игры (VROMFS, файлы
-  BLK) и кэшируются. После обновления игры кэш пересобирается сам.
-- **Пишет пользовательскую миссию и копии.** Тестовый выезд — пользовательская миссия в `UserMissions`. Изменённые
-  машины, оружие, РЛС и снаряды записываются в `content/pkg_local` копиями: копия подключает исходный файл и меняет
-  только изменённые поля (`include` + `@override`). Архивы игры не меняются.
-- **Машина из ангара запускается как есть**, остальные — копией (у копии может не быть части интерфейса).
-- **Каждая запись учитывается** в манифесте с контрольными суммами. Откат удаляет ровно записанное программой
-  и возвращает заменённые файлы.
-- **Каждая возможность сначала проверяется в игре**, потом попадает в программу.
-- **Python + Qt (PySide6)**, запуск из исходников. Тяжёлые задачи идут в фоновых процессах, окно не зависает.
+- **Reads your game / Читает вашу игру:** vehicles, weapons, names and icons come from the installed War Thunder and
+  are re-read after game updates / техника, оружие, названия и иконки берутся из установленной игры и перечитываются
+  после обновлений
+- **Hangar vehicles / Машины из ангара:** a vehicle you own launches as itself, others as a copy that may miss some
+  interface elements / своя машина выезжает как есть, остальные — копией, у которой может не быть части интерфейса
+- **For modders / Для моддеров:** a user mission in `UserMissions` and small BLK copies in `content/pkg_local`
+  (`include` + `@override`), see the [datamine reference](docs/en/datamine/index.md) / пользовательская миссия
+  в `UserMissions` и небольшие копии BLK в `content/pkg_local`, см. [справочник](docs/ru/datamine/index.md)
 
 ---
 

@@ -1,56 +1,65 @@
 # Changelog / Журнал изменений
 
-## 2.0-beta — 2026-11-15, closed beta
+## 2.0-beta — 2026-11-15
 
-- New step *Called-in vehicles*: any aircraft as a drone, tanks and SAM launchers as escort, own saved vehicles.
-- *My vehicles*: save, open, rename and delete configured vehicles.
-- Bomb planes (Mistel): any carrier, any aircraft below, its warhead (explosive or nuclear: nuclear damage, ordinary
-  visuals). One per aircraft.
-- Radar: coverage in all modes including close combat and tracking, plus the cue area. Detection range changes the
-  transmitters, the displayed range and the scale. Passive receivers are not changed.
-- Ammunition restore works the same way as in the game's test drive.
-- Nuclear charge in *Ammunition*; *Reload* in *Characteristics*; *Restore ammunition* in *Scenario*. One gun copy per
-  vehicle with all edits merged. *Reset ammo rack* button.
-- Missile containers keep all missiles on other aircraft's pylons. Empty pylons can't be selected. Custom loadout
-  together with a gun copy. No guns/belts block in *Ammunition* for aircraft.
-- Map borders removed on narrow maps (level copy with wide borders).
-- Program log `logs\wtpoligon.log`, also in the *Logs* archive.
-- Fixes for game 2.61: lowercase weapon paths, mission names without hyphens, aircraft without `fmFile`, service entry
-  `dummy_plane` hidden, *Characteristics* cache.
+Called-in vehicles, saved vehicles, Mistel with any aircraft and radar setup in every mode.
 
-## Beta-1.0 — 2026-10-31, closed beta
+- **Called-in Vehicles:** new step; any aircraft as a drone, tanks and SAM launchers as escort, saved vehicles included
+- **My Vehicles:** save, open, rename and delete configured vehicles
+- **Mistel:** any carrier, any aircraft below, explosive or nuclear warhead; one per aircraft
+- **Radar:** scan angles in every mode including close combat and tracking, detection range
+- **Ammunition Restore:** as in the game's test drive
+- **Nuclear Charge:** for bombs, missiles and shells
+- **Reload:** any reload time, down to instant
+- **Reset Ammo Rack:** one button back to stock
+- **Missile Pods:** ×2 and ×4 on any pylon
+- **Custom Loadout:** works together with gun edits
+- **No Map Borders**
+- **Program Log:** included in the Logs archive
+- **Game 2.61:** all vehicles launch again, Characteristics open instantly
 
-First public release of the program code.
+## Beta-1.0 — 2026-10-31
 
-- Steps: Vehicle → Loadout (aircraft) → Characteristics → Ammunition → Scenario → Review and write.
-- Any vehicle, any weapon on any pylon, weightless loadout; engine, mass, radar, RWR and countermeasure edits; ammo
-  rack and shell edits; scenarios with targets by battle rating; rollback; "Logs" button.
+First public release.
+
+- **Steps:** Vehicle → Loadout → Characteristics → Ammunition → Scenario → Review and Write
+- **Any Vehicle:** every vehicle of the game
+- **Any Weapon on Any Pylon:** with a weightless loadout option
+- **Characteristics:** engine, mass, radar, RWR, countermeasures
+- **Ammunition:** ammo rack and shell editing
+- **Scenarios:** targets by battle rating
+- **Rollback and Logs:** remove everything the program added, collect logs in one click
 
 ---
 
-## 2.0-beta — 15.11.2026, закрытая бета
+## 2.0-beta — 15.11.2026
 
-- Новый шаг «Вызываемая техника»: любой самолёт как дрон, танки и пусковые ЗРК в сопровождение, своя сохранённая
-  техника.
-- «Моя техника»: сохранение, открытие, переименование и удаление настроенных машин.
-- Самолёты-бомбы (Mistel): любой носитель, любой самолёт снизу, его боевая часть (взрывчатка или ядерная: урон
-  ядерный, вид обычный). Один на самолёт.
-- РЛС: обзор во всех режимах, в том числе НСЦ и сопровождение, и область наведения. Дальность обнаружения меняет
-  передатчики, зону отображения целей и шкалу. Пассивные приёмники не меняются.
-- Пополнение боезапаса работает так же, как в тест-драйве игры.
-- Ядерный заряд в «Боеприпасах»; «Перезарядка» в «Характеристиках»; «Пополнять боезапас» в «Сценарии». Одна копия
-  орудия со всеми правками. Кнопка «Сбросить боекомплект».
-- Контейнеры с ракетами на чужом пилоне — со всеми ракетами. Пустые пилоны не выбираются. Своя подвеска вместе
-  с копией пушки. У авиации в «Боеприпасах» нет блока «Пушки, ленты».
-- Убраны границы на узких картах (копия уровня с широкой границей).
-- Журнал программы `logs\wtpoligon.log`, он же в архиве «Логи».
-- Исправления под игру 2.61: пути к оружию строчными, имена миссий без дефиса, самолёты без `fmFile`, скрыта служебная
-  запись `dummy_plane`, кэш «Характеристик».
+Вызываемая техника, сохранение техники, Mistel с любым самолётом и настройка РЛС во всех режимах.
 
-## Beta-1.0 — 31.10.2026, закрытая бета
+- **Вызываемая техника:** новый шаг; любой самолёт как дрон, танки и пусковые ЗРК в сопровождение, в том числе своя
+  техника
+- **Моя техника:** сохранить, открыть, переименовать и удалить настроенную машину
+- **Mistel:** любой носитель, любой самолёт снизу, боевая часть из взрывчатки или ядерная; один на самолёт
+- **РЛС:** углы обзора во всех режимах, включая ближний бой и сопровождение, дальность обнаружения
+- **Пополнение боезапаса:** как в тест-драйве игры
+- **Ядерный заряд:** для бомб, ракет и снарядов
+- **Перезарядка:** любое время перезарядки, вплоть до мгновенной
+- **Сбросить боекомплект:** одна кнопка возвращает штатный
+- **Контейнеры с ракетами:** ×2 и ×4 на любом пилоне
+- **Своя подвеска:** работает вместе с правками пушки
+- **Без границ карты**
+- **Журнал программы:** входит в архив «Логи»
+- **Игра 2.61:** снова запускается вся техника, «Характеристики» открываются
+  мгновенно
 
-Первая публикация кода программы.
+## Beta-1.0 — 31.10.2026
 
-- Шаги: Техника → Подвеска (авиация) → Характеристики → Боеприпасы → Сценарий → Проверка и запись.
-- Любая техника, любое оружие на любой пилон, невесомая подвеска; правка двигателя, массы, РЛС, СПО и ловушек;
-  правка боекомплекта и снарядов; сценарии с подбором целей по БР; откат; кнопка «Логи».
+Первый публичный выпуск.
+
+- **Шаги:** Техника → Подвеска → Характеристики → Боеприпасы → Сценарий → Проверка и запись
+- **Любая техника:** вся техника игры
+- **Любое оружие на любом пилоне:** с невесомой подвеской
+- **Характеристики:** двигатель, масса, РЛС, СПО, ловушки
+- **Боеприпасы:** боекомплект и правка снарядов
+- **Сценарии:** цели по БР
+- **Откат и логи:** убрать всё, что добавила программа, собрать логи одной кнопкой

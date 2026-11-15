@@ -31,8 +31,7 @@ Aircraft and helicopters only; skipped for tanks and ships.
   search. A separate checkbox adds tank, ship and SAM weapons.
 - Number of attachment points; **«Снять»** clears a pylon; **«Зеркально»** copies to the paired pylon (check the
   pair number).
-- Pylons without available weapons can't be selected. Missile containers (×2, ×4) on another aircraft's pylon carry
-  all their missiles.
+- Pylons without available weapons can't be selected. Missile containers (×2, ×4) go on any pylon.
 - **«Мои пресеты»** — save and load your own presets.
 - The summary shows mass, limits, balance and counts. **«Невесомая подвеска»** (weightless loadout) compensates
   payload mass.
@@ -46,8 +45,7 @@ Aircraft and helicopters only; skipped for tanks and ships.
 - Pick a section; edit the overall value or individual fields. The overall value scales linked fields; editing a
   field updates the overall value.
 - Sections depend on the vehicle: engines, mass, radar, RWR, countermeasures, reload, names.
-- Radar: coverage in all modes, close combat included; detection range changes the target display area, the scale
-  and the transmitters.
+- Radar: scan angles in every mode, close combat included, and detection range.
 - **«Перезарядка»** (reload) — reload time in seconds, down to instant.
 - Each row shows the stock value, BLK path, unit and evidence status. **«Все параметры (дерево)»** — searchable
   field tree. **«Сброс»** resets the section.
@@ -62,7 +60,6 @@ Aircraft and helicopters only; skipped for tanks and ships.
   game.
 - A selected shell can be edited; **«Все параметры · дерево»** shows all typed fields.
 - **«Ядерный заряд»** (nuclear charge) — for bombs, missiles and shells.
-- All edits to one gun are written to a single copy.
 - Aircraft and helicopters: belts and rounds per barrel; they have no ground-gun block.
 - **«Сбросить боекомплект»** restores the stock slots.
 
@@ -83,9 +80,8 @@ Aircraft and helicopters only; skipped for tanks and ships.
 - Aircraft: start altitude and speed; helicopters can start on the ground.
 - Duel: opponent, its loadout, count, distance, altitude, whether it shoots.
 - Rules: markers, target restore, infinite fuel, mode options.
-- **«Пополнять боезапас»** (restore ammunition) — works the same way as in the game's test drive: ammunition is
-  restored once everything is fired.
-- Map borders are removed on narrow maps: the program writes a level copy with wide borders.
+- **«Пополнять боезапас»** (restore ammunition) — as in the game's test drive.
+- Map borders are removed.
 
 ## 7. Review and write / «Проверка и запись»
 
@@ -96,8 +92,7 @@ Aircraft and helicopters only; skipped for tanks and ships.
   renamed and deleted.
 - The lower table lists the program's installs and file states. **«Откатить эту машину»**, **«Откатить выбранное»**,
   **«Откатить всё»** roll back the current, selected or all installs.
-- Rollback removes only program files whose hash still matches and restores backed-up originals; files changed
-  afterward stay. Review the rollback report.
+- Rollback removes only what the program added; files you changed yourself stay.
 - **«Логи»** (Logs) packs recent game logs, the program log (`%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`) and the
   program's records into a ZIP in the `logs` folder next to the program and opens the folder. Send the ZIP with the
   vehicle and the steps taken when reporting a problem.
