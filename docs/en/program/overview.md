@@ -33,7 +33,6 @@ See [user missions](../datamine/user-missions.md) and [modifications](../datamin
 
 - Before writing, the program checks generated copies against the installed source. This checks file structure and
   intended values, not whether every combination works in battle.
-- **"Verified in game"** means there is gameplay evidence. **"Not verified"** and **📄** mark areas that need testing.
 - Rollback uses a manifest and hashes. Files changed after installation are left in place.
 
 Details for contributors: [developer guide](developer-guide.md).

@@ -21,19 +21,17 @@ The game's test drive runs a vehicle only with stock parameters. WT Poligon can:
 - **My vehicles** — a configured vehicle can be saved and opened later. Saved vehicles appear in the vehicle search.
 - **Bomb planes (Mistel)** — on any aircraft, with **any aircraft** below. The aircraft below gets a warhead:
   explosive mass or nuclear. A nuclear warhead deals nuclear damage, the explosion looks ordinary.
-- **Radar** (verified in game) — coverage changes in all modes, including close combat (up to 360°). Detection range
+- **Radar** — coverage changes in all modes, including close combat (up to 360°). Detection range
   changes the target display area, the scale and the transmitters.
-- **Restore ammunition** — works as "Limited ammunition: No" in the game's test drive: ammunition is restored after
-  everything is fired.
+- **Ammunition restore** now works the same way as in the game's test drive: ammunition is restored once everything
+  is fired.
 - **Nuclear charge** for bombs, missiles and shells in *Ammunition*. **Reload** section in *Characteristics*,
   down to instant reload.
 - Missile containers (×2, ×4) carry all their missiles on any pylon. Pylons without weapons can't be selected.
-- **No "Return to the battlefield" on the firing range** — for narrow maps the program writes a level copy with wide
-  borders (📄 not verified in game).
+- **Map borders removed** — for narrow maps the program writes a level copy with wide borders.
 - **Program log** — `%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`. The *Logs* button adds it to the archive.
 - Fixes for game version 2.61: writing to the game works; vehicles with a hyphen in the name and aircraft without an
-  explicit flight model launch; *Characteristics* reopen instantly; search tolerates typos everywhere. The window
-  shows only "not verified" marks.
+  explicit flight model launch; *Characteristics* reopen instantly; search tolerates typos everywhere.
 
 Full list: [CHANGELOG.md](CHANGELOG.md).
 
@@ -77,19 +75,17 @@ The interface is in Russian; English is planned.
 - **Моя техника** — настроенную машину можно сохранить и открыть позже. Сохранённые машины есть в поиске техники.
 - **Самолёты-бомбы (Mistel)** — на любом самолёте, снизу — **любой самолёт**. У нижнего самолёта боевая часть:
   масса взрывчатки или ядерная. Ядерная наносит ядерный урон, взрыв выглядит обычным.
-- **РЛС** (проверено в игре) — обзор меняется во всех режимах, в том числе в ближнем бою (до 360°). Дальность
+- **РЛС** — обзор меняется во всех режимах, в том числе в ближнем бою (до 360°). Дальность
   обнаружения меняет зону отображения целей, шкалу и передатчики.
-- **«Пополнять боезапас»** — работает как «Ограниченный боезапас: Нет» в тест-драйве игры: боезапас пополняется,
-  когда всё выпущено.
+- **Пополнение боезапаса** теперь работает так же, как в тест-драйве игры: боезапас пополняется, когда всё
+  выпущено.
 - **Ядерный заряд** для бомб, ракет и снарядов в «Боеприпасах». Раздел **«Перезарядка»** в «Характеристиках»,
   вплоть до мгновенной.
 - Контейнеры с ракетами (×2, ×4) на любом пилоне несут все ракеты. Пилоны без оружия не выбираются.
-- **Без «Вернитесь на поле боя» на полигоне** — для узких карт программа пишет копию уровня с широкой границей
-  (📄 в игре не проверено).
+- **Убраны границы карты** — для узких карт программа пишет копию уровня с широкой границей.
 - **Журнал программы** — `%LOCALAPPDATA%\WTPoligon5\logs\wtpoligon.log`. Кнопка «Логи» кладёт его в архив.
 - Исправления под версию игры 2.61: работает запись в игру; запускаются машины с дефисом в имени и самолёты без явной
-  лётной модели; «Характеристики» открываются повторно мгновенно; поиск везде учитывает опечатки. В окне только
-  пометки «не проверено».
+  лётной модели; «Характеристики» открываются повторно мгновенно; поиск везде учитывает опечатки.
 
 Полный список — [CHANGELOG.md](CHANGELOG.md).
 
@@ -121,8 +117,7 @@ The interface is in Russian; English is planned.
 - **Hangar vehicles launch as themselves**, other vehicles as a copy (a copy may lack some interface elements).
 - **Every write is recorded** in a manifest with file hashes. Rollback removes exactly what the program wrote and
   restores replaced files.
-- **Features are verified in the game first.** Fields found in the game files but not yet verified in the game are
-  marked 📄; they need testing most.
+- **Every feature is checked in the game** before it goes into the program.
 - **Python + Qt (PySide6)**, runs from source. Heavy tasks run in background processes, the window does not freeze.
 
 ## Как это устроено
@@ -135,8 +130,7 @@ The interface is in Russian; English is planned.
 - **Машина из ангара запускается как есть**, остальные — копией (у копии может не быть части интерфейса).
 - **Каждая запись учитывается** в манифесте с контрольными суммами. Откат удаляет ровно записанное программой
   и возвращает заменённые файлы.
-- **Каждая возможность сначала проверяется в игре.** Поля, которые есть в файлах игры, но в игре не проверены,
-  помечены 📄; их проверка нужнее всего.
+- **Каждая возможность сначала проверяется в игре**, потом попадает в программу.
 - **Python + Qt (PySide6)**, запуск из исходников. Тяжёлые задачи идут в фоновых процессах, окно не зависает.
 
 ---

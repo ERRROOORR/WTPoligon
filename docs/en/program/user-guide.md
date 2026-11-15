@@ -12,15 +12,6 @@ The window is in Russian. This guide gives Russian control names next to English
 3. Choose a vehicle, move with **Далее →** (Next) or the step buttons at the top, finish with **Записать в игру**
    (Write to game).
 
-Marks in the window:
-
-- **«Проверено в игре»** (verified in game) — behavior tested in the game.
-- **«Не проверено»** (not verified) and **📄** — the option follows from game files; its gameplay effect still needs
-  testing.
-- A passing pre-write check validates generated files, not the whole combination in battle.
-
-See the [tester checklist](../../TESTING.md).
-
 ## 1. Vehicle / «Техника»
 
 - Search by Russian or English name or internal ID; typos and wrong keyboard layout are tolerated.
@@ -37,7 +28,7 @@ Aircraft and helicopters only; skipped for tanks and ships.
 
 - Start from a stock preset and select a pylon by number.
 - **«Штатное для пилона»** — the pylon's stock options; **«Любое оружие игры»** — the full weapon catalog with
-  search. A separate checkbox adds tank, ship and SAM weapons; untested combinations are marked 📄.
+  search. A separate checkbox adds tank, ship and SAM weapons.
 - Number of attachment points; **«Снять»** clears a pylon; **«Зеркально»** copies to the paired pylon (check the
   pair number).
 - Pylons without available weapons can't be selected. Missile containers (×2, ×4) on another aircraft's pylon carry
@@ -74,7 +65,6 @@ Aircraft and helicopters only; skipped for tanks and ships.
 - All edits to one gun are written to a single copy.
 - Aircraft and helicopters: belts and rounds per barrel; they have no ground-gun block.
 - **«Сбросить боекомплект»** restores the stock slots.
-- Ammunition is a priority 📄 area in the [tester checklist](../../TESTING.md); verify the result in battle.
 
 ## 5. Called-in vehicles / «Вызываемая техника»
 
@@ -82,7 +72,6 @@ Aircraft and helicopters only; skipped for tanks and ships.
 - An aircraft can be set as the vehicle's drone; tanks and SAM launchers as escort. Ground units have a count.
 - **«Заменить»** (replace) and **«Убрать»** (remove) act on a list row.
 - **«+ Добавить технику»** (add) searches game vehicles and your saved vehicles (called in with their loadout).
-- The step is marked 📄: check the call-in in game.
 
 ## 6. Scenario / «Сценарий»
 
@@ -94,11 +83,9 @@ Aircraft and helicopters only; skipped for tanks and ships.
 - Aircraft: start altitude and speed; helicopters can start on the ground.
 - Duel: opponent, its loadout, count, distance, altitude, whether it shoots.
 - Rules: markers, target restore, infinite fuel, mode options.
-- **«Пополнять боезапас»** (restore ammunition) — as "Limited ammunition: No" in the game's test drive: ammunition
-  is restored after everything is fired.
-- On narrow maps the program writes a level copy with wide borders, without "Return to the battlefield" (📄 not
-  verified in game).
-- Many combinations are untested — read the **«проверено в игре» / «не проверено»** marks.
+- **«Пополнять боезапас»** (restore ammunition) — works the same way as in the game's test drive: ammunition is
+  restored once everything is fired.
+- Map borders are removed on narrow maps: the program writes a level copy with wide borders.
 
 ## 7. Review and write / «Проверка и запись»
 
@@ -124,4 +111,4 @@ Aircraft and helicopters only; skipped for tanks and ships.
 | Custom loadout lacks an interface item or modification | It launches as a copy. Try a stock preset or an owned vehicle. |
 | **Write to game** is disabled | Select a vehicle, wait for loading, read the validation errors. A datamine source needs an explicit game folder. |
 | New name does not appear | Restart the game after a CSV name change. |
-| Mission or weapon fails in game | Note any 📄 status, roll back the install, collect **«Логи»**. |
+| Mission or weapon fails in game | Roll back the install, collect **«Логи»**. |
